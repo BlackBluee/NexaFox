@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35514.174 d17.12
+VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaFox", "NexaFox\NexaFox.csproj", "{F33AAFA5-29F9-4BD0-B3CA-3E74F6F6F82C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C560E4BC-D859-4269-BEDE-87434909DC91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaFox", "src\NexaFox\NexaFox.csproj", "{89CAE041-50E8-43B9-B79E-80E403D374AC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{BE25BF12-3DE6-499F-A7C6-D90C5CF967CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +15,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F33AAFA5-29F9-4BD0-B3CA-3E74F6F6F82C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F33AAFA5-29F9-4BD0-B3CA-3E74F6F6F82C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F33AAFA5-29F9-4BD0-B3CA-3E74F6F6F82C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F33AAFA5-29F9-4BD0-B3CA-3E74F6F6F82C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89CAE041-50E8-43B9-B79E-80E403D374AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89CAE041-50E8-43B9-B79E-80E403D374AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89CAE041-50E8-43B9-B79E-80E403D374AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89CAE041-50E8-43B9-B79E-80E403D374AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89CAE041-50E8-43B9-B79E-80E403D374AC} = {C560E4BC-D859-4269-BEDE-87434909DC91}
+		{BE25BF12-3DE6-499F-A7C6-D90C5CF967CC} = {C560E4BC-D859-4269-BEDE-87434909DC91}
 	EndGlobalSection
 EndGlobal
