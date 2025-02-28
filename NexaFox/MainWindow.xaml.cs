@@ -30,5 +30,32 @@ namespace NexaFox
             // Ładujemy stronę internetową
             webView.Source = new Uri("https://www.google.com");
         }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            if (webView.CanGoBack)
+                webView.GoBack();
+        }
+
+        private void Forward_Click(object sender, RoutedEventArgs e)
+        {
+            if (webView.CanGoForward)
+                webView.GoForward();
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            webView.Reload();
+        }
+
+        private void Menu_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Menu clicked!");
+        }
+
+        private void Options_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Options clicked!");
+        }
     }
 }

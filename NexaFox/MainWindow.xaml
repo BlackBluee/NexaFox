@@ -9,8 +9,22 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <webview2:WebView2 Name="webView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <!-- Pasek narzędzi -->
+        <StackPanel Orientation="Horizontal" Background="#EEE" VerticalAlignment="Top">
+            <Button Content="☰" Width="40" ToolTip="Menu"/>
+            <Button Content="⮌" Width="40" ToolTip="Cofnij" Click="Back_Click"/>
+            <Button Content="⮎" Width="40" ToolTip="Dalej" Click="Forward_Click"/>
+            <Button Content="⭮" Width="40" ToolTip="Odśwież" Click="Refresh_Click"/>
+            <TextBox Name="AddressBar" Width="400" Margin="5,0" VerticalAlignment="Center"/>
+            <Button Content="⋮" Width="40" ToolTip="Opcje"/>
+        </StackPanel>
 
+        <!-- WebView -->
+        <webview2:WebView2 Name="webView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
 </Window>
