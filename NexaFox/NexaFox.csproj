@@ -9,8 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Nowy folder1\**" />
+    <EmbeddedResource Remove="Nowy folder1\**" />
+    <None Remove="Nowy folder1\**" />
+    <Page Remove="Nowy folder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="9.0.40" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3065.39" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Model\" />
+    <Folder Include="ViewModel\" />
+    <Folder Include="View\" />
   </ItemGroup>
 
 </Project>
