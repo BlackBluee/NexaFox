@@ -14,7 +14,7 @@ using System.Windows.Shell;
 using Microsoft.Web.WebView2.Core;
 
 
-namespace NexaFox
+namespace NexaFox.Views
 {
     public partial class MainWindow : Window
     {
