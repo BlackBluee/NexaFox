@@ -12,6 +12,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Shell;
 using Microsoft.Web.WebView2.Core;
+using NexaFox.ViewModels;
 
 
 namespace NexaFox.Views
@@ -24,7 +25,7 @@ namespace NexaFox.Views
         {
             InitializeComponent();
             InitializeWebView();
-            
+            ((MainViewModel)DataContext).NavigateRequested += OnNavigateRequested;
         }
         private async void InitializeWebView()
         {
@@ -38,6 +39,25 @@ namespace NexaFox.Views
                 GlassFrameThickness = new Thickness(0)
             };
             WindowChrome.SetWindowChrome(this, windowChrome);
+        }
+
+        private void OnNavigateRequested(object sender, string url)
+        {
+            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            {
+                webView.CoreWebView2?.Navigate(url);
+            }
+        }
+
+        
+
+        private void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (e.IsSuccess && webView.CoreWebView2 != null)
+            {
+                string currentUrl = webView.CoreWebView2.Source;
+                ((MainViewModel)DataContext).Address = currentUrl;
+            }
         }
 
 
@@ -100,12 +120,16 @@ namespace NexaFox.Views
         {
             if (webView.CanGoBack)
                 webView.GoBack();
+            string currentUrl = webView.CoreWebView2.Source;
+            ((MainViewModel)DataContext).Address = currentUrl;
         }
 
         private void Forward_Click(object sender, RoutedEventArgs e)
         {
             if (webView.CanGoForward)
                 webView.GoForward();
+            string currentUrl = webView.CoreWebView2.Source;
+            ((MainViewModel)DataContext).Address = currentUrl;
         }
 
         private void Refresh_Click(object sender, RoutedEventArgs e)

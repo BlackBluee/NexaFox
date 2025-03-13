@@ -174,22 +174,26 @@ ToolTip="FTP"/>
                             <Button Content="&#xE72B;" 
                   Margin="10"
                   FontFamily="Segoe MDL2 Assets"
-                  Click="Back_Click"/>
+                  Command="{Binding Back_Click}"/>
                             <Button Content="&#xE72A;" 
                     Margin="10"
                   FontFamily="Segoe MDL2 Assets"
-                  Click="Forward_Click"/>
+                  Command="{Binding Forward_Click}"/>
                             <Button Content="&#xE72C;" 
                         Margin="10"
                   FontFamily="Segoe MDL2 Assets"
-                  Click="Refresh_Click"/>
+                  Command="{Binding Refresh_Click}"/>
 
-                            <TextBox Text="{Binding Address}"
-                         Margin="8" 
-                         VerticalAlignment="Center"
-                         Foreground="White"
-                         Style="{StaticResource RoundTextBox}"
-                         Width="600">
+                            <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="8" 
+                                     VerticalAlignment="Center"
+                                     Style="{StaticResource RoundTextBox}"
+                                     Width="600"
+                                     Foreground="GhostWhite"
+                                     CaretBrush="White">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding NavigateCommand}"/>
+                                </TextBox.InputBindings>
                             </TextBox>
 
                             <Button Content="&#xE712;" 
@@ -201,7 +205,7 @@ ToolTip="FTP"/>
                         </DockPanel>
 
                         <Border Grid.Row="2" Background="#1E1E1E">
-                            <webview2:WebView2 Name="webView"/>
+                            <webview2:WebView2 Name="webView" NavigationCompleted="WebView_NavigationCompleted"/>
                         </Border>
                     </Grid>
 
