@@ -24,16 +24,14 @@ namespace NexaFox.Views
         public MainWindow()
         {
             InitializeComponent();
-            InitializeWebView();
-            ((MainViewModel)DataContext).NavigateRequested += OnNavigateRequested;
+            InitializeResize();
         }
-        private async void InitializeWebView()
+        
+        public void InitializeResize()
         {
-            await webView.EnsureCoreWebView2Async(null);
-            webView.Source = new Uri("https://www.google.com");
             var windowChrome = new WindowChrome
             {
-                ResizeBorderThickness = new Thickness(8), // Dopasuj do grubości prostokątów
+                ResizeBorderThickness = new Thickness(8), 
                 CaptionHeight = 0,
                 CornerRadius = new CornerRadius(8),
                 GlassFrameThickness = new Thickness(0)
@@ -41,24 +39,7 @@ namespace NexaFox.Views
             WindowChrome.SetWindowChrome(this, windowChrome);
         }
 
-        private void OnNavigateRequested(object sender, string url)
-        {
-            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
-            {
-                webView.CoreWebView2?.Navigate(url);
-            }
-        }
-
         
-
-        private void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            if (e.IsSuccess && webView.CoreWebView2 != null)
-            {
-                string currentUrl = webView.CoreWebView2.Source;
-                ((MainViewModel)DataContext).Address = currentUrl;
-            }
-        }
 
 
         private void ResizeWindow(object sender, MouseButtonEventArgs e)
@@ -100,7 +81,7 @@ namespace NexaFox.Views
             }
         }
 
-        // Interop do obsługi przeciągania
+
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
@@ -116,35 +97,6 @@ namespace NexaFox.Views
 
 
 
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            if (webView.CanGoBack)
-                webView.GoBack();
-            string currentUrl = webView.CoreWebView2.Source;
-            ((MainViewModel)DataContext).Address = currentUrl;
-        }
-
-        private void Forward_Click(object sender, RoutedEventArgs e)
-        {
-            if (webView.CanGoForward)
-                webView.GoForward();
-            string currentUrl = webView.CoreWebView2.Source;
-            ((MainViewModel)DataContext).Address = currentUrl;
-        }
-
-        private void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            webView.Reload();
-        }
-
-        private void Menu_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Menu clicked!");
-        }
-
-        private void Options_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Options clicked!");
-        }
+        
     }
 }

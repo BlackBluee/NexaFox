@@ -2,42 +2,50 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.AspNetCore.Components.Web;
 using NexaFox.Services.Interfaces;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using NexaFox.Views.Pages;
 
 namespace NexaFox.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private string _address = "https://google.com";
-        public string Address
+        [ObservableProperty]
+        private TabItemViewModel? _selectedTab;
+
+        public ObservableCollection<TabItemViewModel> Tabs { get; } = new();
+
+        public MainViewModel()
         {
-            get => _address;
-            set
+            AddInitialTab();
+        }
+
+        private void AddInitialTab()
+        {
+            var newTab = CreateNewTab();
+            Tabs.Add(newTab);
+            SelectedTab = newTab;
+        }
+
+        [RelayCommand]
+        private void AddNewTab()
+        {
+            var newTab = CreateNewTab();
+            Tabs.Add(newTab);
+            SelectedTab = newTab;
+        }
+
+        private TabItemViewModel CreateNewTab()
+        {
+            return new TabItemViewModel
             {
-                _address = value;
-                OnPropertyChanged();
-            }
+                Content = new WebBrowser()
+            };
         }
-
-        
-
-        public ICommand NavigateCommand => new RelayCommand(Navigate);
-
-        private void Navigate()
-        {
-            NavigateRequested?.Invoke(this, Address);
-        }
-
-        public event Action RequestGoBack;
-        public event EventHandler<string> NavigateRequested;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 
         [RelayCommand]
@@ -68,5 +76,6 @@ namespace NexaFox.ViewModels
                 window.Close();
             }
         }
+        
     }
 }

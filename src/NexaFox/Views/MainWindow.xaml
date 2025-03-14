@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:NexaFox.ViewModels"
-        xmlns:webview2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:local="clr-namespace:NexaFox.Views"
         mc:Ignorable="d"
         Title="NexaFox" 
         Height="600" 
@@ -12,11 +12,10 @@
         WindowStyle="None"
         ResizeMode="CanResize"
         Background="Transparent"
-        AllowsTransparency="True"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        AllowsTransparency="True">
 
     <Window.Resources>
-        <Style TargetType="Button">
+        <Style TargetType="Button" x:Key="BaseButton">
             <Setter Property="Foreground" Value="#CCCCCC"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -39,18 +38,33 @@
             </Style.Triggers>
         </Style>
 
-        <Style TargetType="TextBox" x:Key="RoundTextBox">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border CornerRadius="20" 
-                              Background="#252526"
-                              Padding="8">
-                            <ScrollViewer x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+
+        <Style TargetType="Button" x:Key="WindowControlButton" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="CloseButtonStyle" BasedOn="{StaticResource WindowControlButton}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E81123"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style TargetType="Button" x:Key="SidebarButton" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+
+
+        <Style TargetType="TabControl" x:Key="MainTabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
     </Window.Resources>
 
@@ -58,12 +72,11 @@
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    
     <Border CornerRadius="6" 
             Background="#1E1E1E"
             BorderThickness="0.3"
             BorderBrush="#3A3A3A" 
-        Margin="1">
+            Margin="1">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -71,147 +84,102 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="4"/>
             </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="4"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="4"/>
             </Grid.ColumnDefinitions>
 
-            <Rectangle Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="TopLeft"/>
-            <Rectangle Grid.Row="0" Grid.Column="2" Cursor="SizeNESW" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="TopRight"/>
-            <Rectangle Grid.Row="2" Grid.Column="0" Cursor="SizeNESW" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="BottomLeft"/>
-            <Rectangle Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="BottomRight"/>
-
-            <Rectangle Grid.Row="0" Grid.Column="1" Cursor="SizeNS" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="Top"/>
-            <Rectangle Grid.Row="2" Grid.Column="1" Cursor="SizeNS" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="Bottom"/>
-            <Rectangle Grid.Row="1" Grid.Column="0" Cursor="SizeWE" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="Left"/>
-            <Rectangle Grid.Row="1" Grid.Column="2" Cursor="SizeWE" Fill="Transparent" 
-                       MouseLeftButtonDown="ResizeWindow" Tag="Right"/>
-
-            
-
-            <Grid Grid.Row="1" Grid.Column="1" Margin="0">
-                <Grid Margin="0,0,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <Rectangle Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE" Fill="Transparent"/>
+            <Rectangle Grid.Row="0" Grid.Column="2" Cursor="SizeNESW" Fill="Transparent"/>
+            <Rectangle Grid.Row="2" Grid.Column="0" Cursor="SizeNESW" Fill="Transparent"/>
+            <Rectangle Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE" Fill="Transparent"/>
+            <Rectangle Grid.Row="0" Grid.Column="1" Cursor="SizeNS" Fill="Transparent"/>
+            <Rectangle Grid.Row="2" Grid.Column="1" Cursor="SizeNS" Fill="Transparent"/>
+            <Rectangle Grid.Row="1" Grid.Column="0" Cursor="SizeWE" Fill="Transparent"/>
+            <Rectangle Grid.Row="1" Grid.Column="2" Cursor="SizeWE" Fill="Transparent"/>
 
 
-                    <Border Grid.Column="0" 
-              Width="48" 
-              Background="#252526">
-                        <StackPanel Margin="4">
-                            <Button Content="&#xE700;" 
-                      FontFamily="Segoe MDL2 Assets"
-                      Height="40"
-                      ToolTip="Menu"/>
-                            <Button Content="&#xe9d9;" 
-                      FontFamily="Segoe MDL2 Assets"
-                      Height="40"
-                      ToolTip="Strona główna"/>
-                            <Button Content="&#xE756;" 
-                      FontFamily="Segoe MDL2 Assets"
-                      Height="40"
-                      ToolTip="Zakładki"/>
-                            <Button Content="&#xE8CE;" 
-FontFamily="Segoe MDL2 Assets"
-Height="40"
-ToolTip="FTP"/>
-                            <Button Content="&#xE713;" 
-                      FontFamily="Segoe MDL2 Assets"
-                      Height="40"
-                      ToolTip="Ustawienia"/>
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" 
+                        Width="48" 
+                        Background="#252526">
+                    <StackPanel Margin="4">
+                        <Button Style="{StaticResource SidebarButton}" 
+                                Content="&#xE700;" 
+                                FontFamily="Segoe MDL2 Assets"
+                                ToolTip="Menu"/>
+                        <Button Style="{StaticResource SidebarButton}" 
+                                Content="&#xe9d9;" 
+                                FontFamily="Segoe MDL2 Assets"
+                                ToolTip="Strona główna"/>
+                        <Button Style="{StaticResource SidebarButton}" 
+                                Content="&#xE756;" 
+                                FontFamily="Segoe MDL2 Assets"
+                                ToolTip="Zakładki"/>
+                        <Button Style="{StaticResource SidebarButton}" 
+                                Content="&#xE8CE;" 
+                                FontFamily="Segoe MDL2 Assets"
+                                ToolTip="FTP"/>
+                        <Button Style="{StaticResource SidebarButton}" 
+                                Content="&#xE713;" 
+                                FontFamily="Segoe MDL2 Assets"
+                                ToolTip="Ustawienia"/>
+                    </StackPanel>
+                </Border>
+
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+
+                    <Grid Grid.Row="0" Background="#333333">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TabControl Grid.Column="0" 
+                                    Style="{StaticResource MainTabControl}"
+                                    ItemsSource="{Binding Tabs}"
+                                    SelectedItem="{Binding SelectedTab}">
+                            <TabControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Header}"/>
+                                    
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+                        </TabControl>
+
+
+                        <StackPanel Grid.Column="1" 
+                                    Orientation="Horizontal" 
+                                    VerticalAlignment="Center">
+                            <Button Style="{StaticResource WindowControlButton}" 
+                                    Content="&#xE921;" 
+                                    Command="{Binding MinimizeCommand}"/>
+                            <Button Style="{StaticResource WindowControlButton}" 
+                                    Content="&#xE922;" 
+                                    Command="{Binding MaximizeCommand}"/>
+                            <Button Style="{StaticResource CloseButtonStyle}" 
+                                    Content="&#xE8BB;" 
+                                    Command="{Binding CloseCommand}"/>
                         </StackPanel>
-                    </Border>
-
-                    <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0" Background="#333333">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TabControl Grid.Column="0"
-            Background="Transparent"
-            BorderThickness="0">
-                                <TabItem Header="Nowa karta">
-
-                                </TabItem>
-                            </TabControl>
-
-
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Style="{StaticResource WindowControlButton}" 
-                  Content="&#xE921;" 
-                  Command="{Binding MinimizeCommand}"/>
-
-                                <Button Style="{StaticResource WindowControlButton}" 
-                  Content="&#xE922;" 
-                  Command="{Binding MaximizeCommand}"/>
-
-                                <Button Style="{StaticResource CloseButtonStyle}" 
-                  Command="{Binding CloseCommand}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <DockPanel LastChildFill="False" 
-                       Grid.Row="1" 
-                       Background="#3C3C3C">
-                            <Button Content="&#xE72B;" 
-                  Margin="10"
-                  FontFamily="Segoe MDL2 Assets"
-                  Command="{Binding Back_Click}"/>
-                            <Button Content="&#xE72A;" 
-                    Margin="10"
-                  FontFamily="Segoe MDL2 Assets"
-                  Command="{Binding Forward_Click}"/>
-                            <Button Content="&#xE72C;" 
-                        Margin="10"
-                  FontFamily="Segoe MDL2 Assets"
-                  Command="{Binding Refresh_Click}"/>
-
-                            <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="8" 
-                                     VerticalAlignment="Center"
-                                     Style="{StaticResource RoundTextBox}"
-                                     Width="600"
-                                     Foreground="GhostWhite"
-                                     CaretBrush="White">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Command="{Binding NavigateCommand}"/>
-                                </TextBox.InputBindings>
-                            </TextBox>
-
-                            <Button Content="&#xE712;" 
-                                Margin="10"
-                  DockPanel.Dock="Right"
-                  FontFamily="Segoe MDL2 Assets"
-                  Click="Menu_Click"/>
-
-                        </DockPanel>
-
-                        <Border Grid.Row="2" Background="#1E1E1E">
-                            <webview2:WebView2 Name="webView" NavigationCompleted="WebView_NavigationCompleted"/>
-                        </Border>
                     </Grid>
 
 
+                    <ContentControl Grid.Row="1" 
+                                  Content="{Binding SelectedTab.Content}"/>
                 </Grid>
-
             </Grid>
         </Grid>
     </Border>
