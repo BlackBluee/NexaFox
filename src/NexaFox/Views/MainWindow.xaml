@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:NexaFox.ViewModels"
         xmlns:local="clr-namespace:NexaFox.Views"
+        xmlns:views="clr-namespace:NexaFox.Views.Pages"
         mc:Ignorable="d"
         Title="NexaFox" 
         Height="600" 
@@ -15,6 +16,9 @@
         AllowsTransparency="True">
 
     <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:WebBrowserViewModel}">
+            <views:WebBrowser />
+        </DataTemplate>
         <Style TargetType="Button" x:Key="BaseButton">
             <Setter Property="Foreground" Value="#CCCCCC"/>
             <Setter Property="Background" Value="Transparent"/>
