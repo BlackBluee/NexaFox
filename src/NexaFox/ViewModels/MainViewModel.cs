@@ -1,13 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using NexaFox.Commands; // Zmień na właściwy namespace
+using CommunityToolkit.Mvvm.Input;
+
 
 namespace NexaFox.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public partial class MainViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<TabItemViewModel> Tabs { get; } = new ObservableCollection<TabItemViewModel>();
         private TabItemViewModel _selectedTab;
@@ -37,7 +39,10 @@ namespace NexaFox.ViewModels
             var newTab = new TabItemViewModel
             {
                 Header = $"Nowa karta {Tabs.Count + 1}",
-                Content = new TextBlock { Text = $"Zawartość karty {Tabs.Count + 1}" }
+                Content = new WebBrowserViewModel
+                {
+                    Address = "https://www.google.com"
+                }
             };
             Tabs.Add(newTab);
             SelectedTab = newTab;
@@ -53,6 +58,35 @@ namespace NexaFox.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        [RelayCommand]
+        private void Minimize()
+        {
+            if (Application.Current.MainWindow is Window window)
+            {
+                window.WindowState = WindowState.Minimized;
+            }
+        }
+
+        [RelayCommand]
+        private void Maximize()
+        {
+            if (Application.Current.MainWindow is Window window)
+            {
+                window.WindowState = window.WindowState == WindowState.Maximized
+                    ? WindowState.Normal
+                    : WindowState.Maximized;
+            }
+        }
+
+        [RelayCommand]
+        private void Close()
+        {
+            if (Application.Current.MainWindow is Window window)
+            {
+                window.Close();
+            }
         }
     }
 

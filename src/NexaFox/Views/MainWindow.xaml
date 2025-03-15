@@ -110,7 +110,7 @@
                 <Border Grid.Column="0" 
                         Width="48" 
                         Background="#252526">
-                    <StackPanel Margin="4">
+                    <StackPanel Margin="0">
                         <Button Style="{StaticResource SidebarButton}" 
                                 Content="&#xE700;" 
                                 FontFamily="Segoe MDL2 Assets"
@@ -153,7 +153,7 @@
                             <TabControl x:Name="MainTabControl"
                 Style="{StaticResource MainTabControl}"
                 ItemsSource="{Binding Tabs}"
-                SelectedItem="{Binding SelectedTab}">
+                SelectedItem="{Binding SelectedTab, Mode=TwoWay}">
 
                                 <TabControl.Template>
                                     <ControlTemplate TargetType="TabControl">
@@ -165,6 +165,7 @@
                                   Margin="0"/>
                                                 <Button Content="+"
                                                         Style="{StaticResource TabButton}"
+                                                        FontSize="24"
                                                         
                                 Height="40"
                                 Width="40"
@@ -174,6 +175,7 @@
                                 Command="{Binding DataContext.AddTabCommand, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                             </StackPanel>
                                         </DockPanel>
+                                        
                                     </ControlTemplate>
                                 </TabControl.Template>
 
