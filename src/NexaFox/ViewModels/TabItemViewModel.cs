@@ -1,13 +1,38 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using NexaFox.Commands;
 
 namespace NexaFox.ViewModels
 {
-    public partial class TabItemViewModel : ObservableObject
+    public class TabItemViewModel : INotifyPropertyChanged
     {
-        [ObservableProperty]
-        private string _header = "Nowa karta";
+        private string _header;
+        public string Header
+        {
+            get => _header;
+            set
+            {
+                _header = value;
+                OnPropertyChanged();
+            }
+        }
 
-        [ObservableProperty]
         private object _content;
+        public object Content
+        {
+            get => _content;
+            set
+            {
+                _content = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

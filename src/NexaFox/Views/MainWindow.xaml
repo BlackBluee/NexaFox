@@ -141,44 +141,99 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-
+                    <!-- Górny pasek z kontrolkami -->
                     <Grid Grid.Row="0" Background="#333333">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TabControl Grid.Column="0" 
-                                    Style="{StaticResource MainTabControl}"
-                                    ItemsSource="{Binding Tabs}"
-                                    SelectedItem="{Binding SelectedTab}">
-                            <TabControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Header}"/>
-                                    
-                                </DataTemplate>
-                            </TabControl.ItemTemplate>
-                        </TabControl>
+                        <!-- Lewa strona - zakładki i przycisk + -->
+                        <DockPanel Grid.Column="0">
+                            <TabControl x:Name="MainTabControl"
+                Style="{StaticResource MainTabControl}"
+                ItemsSource="{Binding Tabs}"
+                SelectedItem="{Binding SelectedTab}">
+
+                                <TabControl.Template>
+                                    <ControlTemplate TargetType="TabControl">
+                                        <!-- Header panel -->
+                                        <DockPanel Grid.Row="0" Margin="0,0,40,0">
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                                <TabPanel x:Name="HeaderPanel"
+                                  IsItemsHost="True"
+                                  Margin="0"/>
+                                                <Button Content="+"
+                                                        Style="{StaticResource TabButton}"
+                                                        
+                                Height="40"
+                                Width="40"
+                                VerticalAlignment="Center"
+                                Padding="5,0"
+                                Margin="2,0,0,0"
+                                Command="{Binding DataContext.AddTabCommand, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </ControlTemplate>
+                                </TabControl.Template>
+
+                                <!-- Styl dla zakładek -->
+                                <TabControl.ItemContainerStyle>
+                                    <Style TargetType="TabItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TabItem">
+                                                    <Border Background="#252526" 
+                                    MinHeight="40"
+                                    Margin="0">
+                                                        <DockPanel>
+                                                            <TextBlock Text="{Binding Header}" 
+                                               Margin="10,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="White"
+                                               DockPanel.Dock="Left"/>
+                                                            <Button Content="&#xE8BB;"
+                                                                    FontSize="10"
+                                            Command="{Binding DataContext.CloseTabCommand, 
+                                                              RelativeSource={RelativeSource AncestorType=TabControl}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="5,0"
+                                            Width="20"
+                                            Height="20"
+                                            Style="{StaticResource CloseButtonStyle}"
+                                            DockPanel.Dock="Right"/>
+                                                        </DockPanel>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TabControl.ItemContainerStyle>
+                            </TabControl>
+                        </DockPanel>
 
 
+                        <!-- Prawa strona - kontrolki okna -->
                         <StackPanel Grid.Column="1" 
-                                    Orientation="Horizontal" 
-                                    VerticalAlignment="Center">
+                    Orientation="Horizontal" 
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0">
                             <Button Style="{StaticResource WindowControlButton}" 
-                                    Content="&#xE921;" 
-                                    Command="{Binding MinimizeCommand}"/>
+                    Content="&#xE921;" 
+                    Command="{Binding MinimizeCommand}"/>
                             <Button Style="{StaticResource WindowControlButton}" 
-                                    Content="&#xE922;" 
-                                    Command="{Binding MaximizeCommand}"/>
+                    Content="&#xE922;" 
+                    Command="{Binding MaximizeCommand}"/>
                             <Button Style="{StaticResource CloseButtonStyle}" 
-                                    Content="&#xE8BB;" 
-                                    Command="{Binding CloseCommand}"/>
+                    Content="&#xE8BB;" 
+                    Command="{Binding CloseCommand}"/>
                         </StackPanel>
                     </Grid>
 
-
+                    <!-- Główna zawartość -->
                     <ContentControl Grid.Row="1" 
-                                  Content="{Binding SelectedTab.Content}"/>
+                    Content="{Binding SelectedTab.Content}"
+                    Background="#1E1E1E"/>
                 </Grid>
             </Grid>
         </Grid>

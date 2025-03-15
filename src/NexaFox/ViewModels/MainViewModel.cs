@@ -1,81 +1,60 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.AspNetCore.Components.Web;
-using NexaFox.Services.Interfaces;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Net;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using NexaFox.Views.Pages;
+using NexaFox.Commands; // Zmień na właściwy namespace
 
 namespace NexaFox.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public class MainViewModel : INotifyPropertyChanged
     {
-        [ObservableProperty]
-        private TabItemViewModel? _selectedTab;
+        public ObservableCollection<TabItemViewModel> Tabs { get; } = new ObservableCollection<TabItemViewModel>();
+        private TabItemViewModel _selectedTab;
 
-        public ObservableCollection<TabItemViewModel> Tabs { get; } = new();
+        public ICommand AddTabCommand { get; }
+        public ICommand CloseTabCommand { get; }
+
+        public TabItemViewModel SelectedTab
+        {
+            get => _selectedTab;
+            set
+            {
+                _selectedTab = value;
+                OnPropertyChanged();
+            }
+        }
 
         public MainViewModel()
         {
-            AddInitialTab();
+            AddTabCommand = new RelayCommand(AddNewTab);
+            CloseTabCommand = new RelayCommand<TabItemViewModel>(CloseTab);
+            AddNewTab(); // Dodaj początkową kartę
         }
 
-        private void AddInitialTab()
-        {
-            var newTab = CreateNewTab();
-            Tabs.Add(newTab);
-            SelectedTab = newTab;
-        }
-
-        [RelayCommand]
         private void AddNewTab()
         {
-            var newTab = CreateNewTab();
+            var newTab = new TabItemViewModel
+            {
+                Header = $"Nowa karta {Tabs.Count + 1}",
+                Content = new TextBlock { Text = $"Zawartość karty {Tabs.Count + 1}" }
+            };
             Tabs.Add(newTab);
             SelectedTab = newTab;
         }
 
-        private TabItemViewModel CreateNewTab()
+        private void CloseTab(TabItemViewModel tab)
         {
-            return new TabItemViewModel
-            {
-                Content = new WebBrowser()
-            };
+            Tabs.Remove(tab);
+            if (Tabs.Count > 0) SelectedTab = Tabs.Last();
         }
 
-
-        [RelayCommand]
-        private void Minimize()
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (Application.Current.MainWindow is Window window)
-            {
-                window.WindowState = WindowState.Minimized;
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        [RelayCommand]
-        private void Maximize()
-        {
-            if (Application.Current.MainWindow is Window window)
-            {
-                window.WindowState = window.WindowState == WindowState.Maximized
-                    ? WindowState.Normal
-                    : WindowState.Maximized;
-            }
-        }
-
-        [RelayCommand]
-        private void Close()
-        {
-            if (Application.Current.MainWindow is Window window)
-            {
-                window.Close();
-            }
-        }
-        
     }
+
+    
 }
