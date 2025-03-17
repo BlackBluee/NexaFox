@@ -249,8 +249,9 @@
                     </Grid>
 
                     <!-- Główna zawartość -->
-                    <ContentPresenter Grid.Row="1" 
-                    Content="{Binding SelectedTab.Content}"/>
+                    <ContentControl Grid.Row="1" 
+                Content="{Binding SelectedTab.Content}"
+                Background="#1E1E1E"/>
 
                 </Grid>
             </Grid>

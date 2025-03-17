@@ -29,6 +29,10 @@ namespace NexaFox.Views.Pages
 
 
             _viewModel.NavigateRequested += OnNavigateRequested;
+            _viewModel.RequestGoBack += () => webView.GoBack();
+            _viewModel.RequestGoForward += () => webView.GoForward();
+            _viewModel.RequestRefresh += () => webView.Reload();
+
             InitializeWebView();
             
         }
@@ -79,15 +83,7 @@ namespace NexaFox.Views.Pages
             webView.Reload();
         }
 
-        private void Menu_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Menu clicked!");
-        }
 
-        private void Options_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Options clicked!");
-        }
     }
     
 }
