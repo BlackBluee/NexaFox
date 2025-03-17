@@ -23,8 +23,6 @@ namespace NexaFox.ViewModels
             }
         }
 
-
-
         public ICommand NavigateCommand => new RelayCommand(Navigate);
 
         private void Navigate()

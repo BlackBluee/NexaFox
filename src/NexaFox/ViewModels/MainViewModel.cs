@@ -15,6 +15,9 @@ namespace NexaFox.ViewModels
         private TabItemViewModel _selectedTab;
 
         public ICommand AddTabCommand { get; }
+        public ICommand AddFTPCommand { get; }
+        public ICommand AddSSHCommand { get; }
+        public ICommand AddMonitorCommand { get; }
         public ICommand CloseTabCommand { get; }
 
         public TabItemViewModel SelectedTab
@@ -30,6 +33,9 @@ namespace NexaFox.ViewModels
         public MainViewModel()
         {
             AddTabCommand = new RelayCommand(AddNewTab);
+            AddFTPCommand = new RelayCommand(AddNewClientFTP);
+            AddSSHCommand = new RelayCommand(AddNewClientSSH);
+            AddMonitorCommand = new RelayCommand(AddNewPortMonitor);
             CloseTabCommand = new RelayCommand<TabItemViewModel>(CloseTab);
             AddNewTab(); // Dodaj początkową kartę
         }
@@ -43,6 +49,39 @@ namespace NexaFox.ViewModels
                 {
                     Address = "https://www.google.com"
                 }
+            };
+            Tabs.Add(newTab);
+            SelectedTab = newTab;
+        }
+
+        private void AddNewClientFTP()
+        {
+            var newTab = new TabItemViewModel
+            {
+                Header = $"Nowa karta {Tabs.Count + 1}",
+                Content = new FTPViewModel()
+            };
+            Tabs.Add(newTab);
+            SelectedTab = newTab;
+        }
+
+        private void AddNewClientSSH()
+        {
+            var newTab = new TabItemViewModel
+            {
+                Header = $"Nowa karta {Tabs.Count + 1}",
+                Content = new SSHViewModel()
+            };
+            Tabs.Add(newTab);
+            SelectedTab = newTab;
+        }
+
+        private void AddNewPortMonitor()
+        {
+            var newTab = new TabItemViewModel
+            {
+                Header = $"Nowa karta {Tabs.Count + 1}",
+                Content = new PortMonitorViewModel()
             };
             Tabs.Add(newTab);
             SelectedTab = newTab;

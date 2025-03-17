@@ -39,64 +39,31 @@ namespace NexaFox.Views
             WindowChrome.SetWindowChrome(this, windowChrome);
         }
 
+
+
+
+
+
         
 
-
-        private void ResizeWindow(object sender, MouseButtonEventArgs e)
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton != MouseButton.Left) return;
-
-            var rectangle = sender as Rectangle;
-            var tag = rectangle?.Tag.ToString();
-
-            var handle = new WindowInteropHelper(this).Handle;
-            ReleaseCapture();
-
-            switch (tag)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                case "TopLeft":
-                    SendMessage(handle, 0x112, (IntPtr)13, IntPtr.Zero); // WMSZ_TOPLEFT
-                    break;
-                case "Top":
-                    SendMessage(handle, 0x112, (IntPtr)12, IntPtr.Zero); // WMSZ_TOP
-                    break;
-                case "TopRight":
-                    SendMessage(handle, 0x112, (IntPtr)14, IntPtr.Zero); // WMSZ_TOPRIGHT
-                    break;
-                case "Left":
-                    SendMessage(handle, 0x112, (IntPtr)10, IntPtr.Zero); // WMSZ_LEFT
-                    break;
-                case "Right":
-                    SendMessage(handle, 0x112, (IntPtr)11, IntPtr.Zero); // WMSZ_RIGHT
-                    break;
-                case "BottomLeft":
-                    SendMessage(handle, 0x112, (IntPtr)16, IntPtr.Zero); // WMSZ_BOTTOMLEFT
-                    break;
-                case "Bottom":
-                    SendMessage(handle, 0x112, (IntPtr)15, IntPtr.Zero); // WMSZ_BOTTOM
-                    break;
-                case "BottomRight":
-                    SendMessage(handle, 0x112, (IntPtr)17, IntPtr.Zero); // WMSZ_BOTTOMRIGHT
-                    break;
+                var handle = new WindowInteropHelper(this).Handle;
+                ReleaseCapture();
+                SendMessage(handle, 0xA1, (IntPtr)2, IntPtr.Zero);
             }
         }
 
-
         [DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+        private static extern int SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         private static extern bool ReleaseCapture();
 
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                DragMove();
-        }
 
 
-
-        
     }
 }
