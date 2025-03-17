@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace NexaFox.ViewModels
 {
-    class SSHViewModel
+    class SSHViewModel : TabContentViewModelBase
     {
+        public SSHViewModel()
+        {
+            Title = "SSH";
+        }
     }
 }

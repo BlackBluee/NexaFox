@@ -16,7 +16,7 @@
         AllowsTransparency="True">
 
     <Window.Resources>
-        <DataTemplate DataType="{x:Type vm:WebBrowserViewModel}">
+        <DataTemplate DataType="{x:Type vm:WebBrowserViewModel }">
             <views:WebBrowser />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:PortMonitorViewModel}">
@@ -169,7 +169,7 @@
                             <TabControl x:Name="MainTabControl"
                 Style="{StaticResource MainTabControl}"
                 ItemsSource="{Binding Tabs}"
-                SelectedItem="{Binding SelectedTab, Mode=TwoWay}">
+                SelectedItem="{Binding SelectedTab}">
 
                                 <TabControl.Template>
                                     <ControlTemplate TargetType="TabControl">
@@ -249,9 +249,9 @@
                     </Grid>
 
                     <!-- Główna zawartość -->
-                    <ContentControl Grid.Row="1" 
-                    Content="{Binding SelectedTab.Content}"
-                    Background="#1E1E1E"/>
+                    <ContentPresenter Grid.Row="1" 
+                    Content="{Binding SelectedTab.Content}"/>
+
                 </Grid>
             </Grid>
         </Grid>

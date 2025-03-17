@@ -44,11 +44,8 @@ namespace NexaFox.ViewModels
         {
             var newTab = new TabItemViewModel
             {
-                Header = $"Nowa karta {Tabs.Count + 1}",
-                Content = new WebBrowserViewModel
-                {
-                    Address = "https://www.google.com"
-                }
+                Content = new WebBrowserViewModel()
+                
             };
             Tabs.Add(newTab);
             SelectedTab = newTab;
@@ -58,7 +55,6 @@ namespace NexaFox.ViewModels
         {
             var newTab = new TabItemViewModel
             {
-                Header = $"Nowa karta {Tabs.Count + 1}",
                 Content = new FTPViewModel()
             };
             Tabs.Add(newTab);
@@ -69,7 +65,6 @@ namespace NexaFox.ViewModels
         {
             var newTab = new TabItemViewModel
             {
-                Header = $"Nowa karta {Tabs.Count + 1}",
                 Content = new SSHViewModel()
             };
             Tabs.Add(newTab);
@@ -80,7 +75,6 @@ namespace NexaFox.ViewModels
         {
             var newTab = new TabItemViewModel
             {
-                Header = $"Nowa karta {Tabs.Count + 1}",
                 Content = new PortMonitorViewModel()
             };
             Tabs.Add(newTab);
@@ -89,8 +83,11 @@ namespace NexaFox.ViewModels
 
         private void CloseTab(TabItemViewModel tab)
         {
-            Tabs.Remove(tab);
-            if (Tabs.Count > 0) SelectedTab = Tabs.Last();
+            if (tab != null)
+            {
+                (tab.Content as IDisposable)?.Dispose();
+                Tabs.Remove(tab);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

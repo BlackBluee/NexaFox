@@ -10,14 +10,20 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace NexaFox.ViewModels
 {
-    public class WebBrowserViewModel 
+    public class WebBrowserViewModel : TabContentViewModelBase
     {
+        public WebBrowserViewModel()
+        {
+            Title = "Web Browser";
+            
+        }
         private string _address = "https://google.com";
         public string Address
         {
             get => _address;
             set
             {
+                Console.WriteLine($"Zmiana adresu: {_address} -> {value}");
                 _address = value;
                 OnPropertyChanged();
             }

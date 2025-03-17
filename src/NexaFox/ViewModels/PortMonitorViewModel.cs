@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace NexaFox.ViewModels
 {
-    class PortMonitorViewModel
+    class PortMonitorViewModel : TabContentViewModelBase
     {
+        public PortMonitorViewModel()
+        {
+            Title = "Port Monitor";
+        }
     }
 }

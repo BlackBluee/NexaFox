@@ -18,16 +18,18 @@ namespace NexaFox.ViewModels
             }
         }
 
-        private object _content;
-        public object Content
+        private TabContentViewModelBase _content;
+        public TabContentViewModelBase Content
         {
             get => _content;
             set
             {
                 _content = value;
+                Header = value?.Title ?? "Nowa karta";
                 OnPropertyChanged();
             }
         }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

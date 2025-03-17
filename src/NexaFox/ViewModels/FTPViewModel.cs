@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace NexaFox.ViewModels
 {
-    class FTPViewModel
+    class FTPViewModel : TabContentViewModelBase
     {
+        public FTPViewModel()
+        {
+            Title = "FTP";
+        }
     }
 }

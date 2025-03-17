@@ -24,7 +24,7 @@ namespace NexaFox.Views.Pages
         public ClientSSH()
         {
             InitializeComponent();
-            this.DataContext = new SSHViewModel();
+
         }
     }
 }
