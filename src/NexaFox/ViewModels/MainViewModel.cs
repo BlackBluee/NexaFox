@@ -25,8 +25,10 @@ namespace NexaFox.ViewModels
             get => _selectedTab;
             set
             {
+                
                 _selectedTab = value;
                 OnPropertyChanged();
+
             }
         }
 
@@ -37,16 +39,21 @@ namespace NexaFox.ViewModels
             AddSSHCommand = new RelayCommand(AddNewClientSSH);
             AddMonitorCommand = new RelayCommand(AddNewPortMonitor);
             CloseTabCommand = new RelayCommand<TabItemViewModel>(CloseTab);
-            AddNewTab(); // Dodaj początkową kartę
+            AddNewTab(); 
         }
 
         private void AddNewTab()
         {
+            var browserView = new WebBrowser();
+            var viewModel = new WebBrowserViewModel();
+
             var newTab = new TabItemViewModel
             {
-                Content = new WebBrowserViewModel()
-                
+                Content = viewModel,
+                View = browserView 
             };
+
+            browserView.DataContext = viewModel;
             Tabs.Add(newTab);
             SelectedTab = newTab;
         }

@@ -20,16 +20,40 @@ namespace NexaFox.ViewModels
         }
 
 
-        private string _address = "https://google.com";
+        private string _address;
+        private bool _isNavigationInProgress;
+
         public string Address
         {
             get => _address;
             set
             {
-                Console.WriteLine($"Zmiana adresu: {_address} -> {value}");
-                _address = value;
-                OnPropertyChanged();
+                if (_address != value)
+                {
+                    _address = value;
+                    OnPropertyChanged();
+
+                    if (!_isNavigationInProgress)
+                    {
+                        NavigateRequested?.Invoke(this, value);
+                    }
+                }
             }
+        }
+
+        private string _cachedAddress;
+
+        public void Activate()
+        {
+            if (Address != _cachedAddress)
+            {
+                NavigateRequested?.Invoke(this, Address);
+            }
+        }
+
+        public void Deactivate()
+        {
+            _cachedAddress = Address;
         }
 
         public ICommand NavigateCommand => new RelayCommand(Navigate);
@@ -38,7 +62,12 @@ namespace NexaFox.ViewModels
 
         public ICommand RefreshCommand => new RelayCommand(Refresh);
 
-
+        public void SetAddressWithoutNavigation(string url)
+    {
+        _isNavigationInProgress = true;
+        Address = url;
+        _isNavigationInProgress = false;
+    }
 
         private void Navigate()
         {
@@ -46,19 +75,9 @@ namespace NexaFox.ViewModels
             NavigateRequested?.Invoke(this, Address);
         }
 
-        private void GoBack()
-        {
-            RequestGoBack?.Invoke();
-        }
-
-        private void GoForward()
-        {
-            RequestGoForward?.Invoke();
-        }
-        private void Refresh()
-        {
-            RequestRefresh?.Invoke();
-        }
+        public void GoBack() => RequestGoBack?.Invoke();
+        public void GoForward() => RequestGoForward?.Invoke();
+        public void Refresh() => RequestRefresh?.Invoke();
 
 
         public event Action RequestGoBack;

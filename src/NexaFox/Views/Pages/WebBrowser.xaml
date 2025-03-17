@@ -74,7 +74,8 @@
                     FontFamily="Segoe MDL2 Assets"
                     Command="{Binding RefreshCommand}"/>
 
-            <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+            <TextBox x:Name="AddressTextBox"
+                Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource RoundTextBox}"
                      Margin="8" 
                      VerticalAlignment="Center"
@@ -83,6 +84,7 @@
                     <KeyBinding Key="Enter" Command="{Binding NavigateCommand}"/>
                 </TextBox.InputBindings>
             </TextBox>
+            
 
             <Button Content="&#xE712;" 
                     Style="{StaticResource NavButton}"

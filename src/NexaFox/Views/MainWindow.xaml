@@ -167,6 +167,8 @@
                         <!-- Lewa strona - zakładki i przycisk + -->
                         <DockPanel Grid.Column="0">
                             <TabControl x:Name="MainTabControl"
+                                        VirtualizingPanel.IsVirtualizing="False"
+    VirtualizingPanel.VirtualizationMode="Standard"
                 Style="{StaticResource MainTabControl}"
                 ItemsSource="{Binding Tabs}"
                 SelectedItem="{Binding SelectedTab}">

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 
 namespace NexaFox.ViewModels
@@ -29,7 +30,9 @@ namespace NexaFox.ViewModels
                 OnPropertyChanged();
             }
         }
-        
+
+        public FrameworkElement View { get; set; }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

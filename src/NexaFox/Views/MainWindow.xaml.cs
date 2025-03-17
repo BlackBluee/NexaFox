@@ -37,14 +37,7 @@ namespace NexaFox.Views
                 GlassFrameThickness = new Thickness(0)
             };
             WindowChrome.SetWindowChrome(this, windowChrome);
-        }
-
-
-
-
-
-
-        
+        }        
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

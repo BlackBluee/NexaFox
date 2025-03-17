@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace NexaFox.Services.Interfaces
 {
-    internal interface Interface1
+    public interface IActivatable
     {
+        void Activate();
+        void Deactivate();
     }
 }
