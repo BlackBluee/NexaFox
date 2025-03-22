@@ -171,7 +171,8 @@
     VirtualizingPanel.VirtualizationMode="Standard"
                 Style="{StaticResource MainTabControl}"
                 ItemsSource="{Binding Tabs}"
-                SelectedItem="{Binding SelectedTab}">
+                SelectedItem="{Binding SelectedTab}"
+                                        SelectionChanged="MainTabControl_SelectionChanged">
 
                                 <TabControl.Template>
                                     <ControlTemplate TargetType="TabControl">

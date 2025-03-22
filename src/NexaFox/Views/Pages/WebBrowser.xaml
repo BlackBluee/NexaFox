@@ -97,7 +97,7 @@
         <Border Grid.Row="1" Background="#1E1E1E">
             <webview2:WebView2 Name="webView" 
                               NavigationCompleted="WebView_NavigationCompleted"
-                              Source="{Binding CurrentUrl}"/>
+                              Source="{Binding CurrentUrl, TargetNullValue='about:blank', FallbackValue='about:blank'}"/>
         </Border>
     </Grid>
 </UserControl>
