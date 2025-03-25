@@ -7,6 +7,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
 
+using PortMonitor = NexaFox.Views.Pages.PortMonitor;
+using ClientSSH = NexaFox.Views.Pages.ClientSSH;
+using ClientFTP = NexaFox.Views.Pages.ClientFTP;
+using WebBrowser = NexaFox.Views.Pages.WebBrowser;
+
 
 namespace NexaFox.ViewModels
 {
@@ -26,10 +31,8 @@ namespace NexaFox.ViewModels
             get => _selectedTab;
             set
             {
-                
                 _selectedTab = value;
                 OnPropertyChanged();
-
             }
         }
 
@@ -115,7 +118,7 @@ namespace NexaFox.ViewModels
 
         private void AddNewTab()
         {
-            var browserView = new NexaFox.Views.Pages.WebBrowser();
+            var browserView = new WebBrowser();
             var viewModel = new WebBrowserViewModel();
 
             var newTab = new TabItemViewModel
@@ -131,10 +134,7 @@ namespace NexaFox.ViewModels
 
         private void AddNewClientFTP()
         {
-            
-           
-
-                var ftpView = new NexaFox.Views.Pages.ClientFTP();
+                var ftpView = new ClientFTP();
                 var viewModel = new FTPViewModel();
 
                 var newTab = new TabItemViewModel
@@ -146,12 +146,11 @@ namespace NexaFox.ViewModels
                 ftpView.DataContext = viewModel;
                 Tabs.Add(newTab);
                 SelectedTab = newTab;
-            
         }
 
         private void AddNewClientSSH()
         {
-            var sshView = new NexaFox.Views.Pages.ClientSSH();
+            var sshView = new ClientSSH();
             var viewModel = new SSHViewModel();
 
             var newTab = new TabItemViewModel
@@ -167,7 +166,7 @@ namespace NexaFox.ViewModels
 
         private void AddNewPortMonitor()
         {
-            var monitorView = new NexaFox.Views.Pages.PortMonitor();
+            var monitorView = new PortMonitor();
             var viewModel = new PortMonitorViewModel();
 
             var newTab = new TabItemViewModel
@@ -191,10 +190,9 @@ namespace NexaFox.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        
 
         [RelayCommand]
         private void Minimize()
@@ -217,13 +215,8 @@ namespace NexaFox.ViewModels
         }
 
         [RelayCommand]
-        private void Close()
-        {
-            if (Application.Current.MainWindow is Window window)
-            {
-                window.Close();
-            }
-        }
+        private void Close() => (Application.Current.MainWindow as Window)?.Close();
+
     }
 
     

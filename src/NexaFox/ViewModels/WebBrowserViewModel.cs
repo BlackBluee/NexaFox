@@ -35,35 +35,12 @@ namespace NexaFox.ViewModels
                 }
             }
 
-            private string _cachedAddress;
-
-            public void Activate()
-            {
-                if (Address != _cachedAddress)
-                {
-                    NavigateRequested?.Invoke(this, Address);
-                }
-            }
-
-            public void Deactivate()
-            {
-                _cachedAddress = Address;
-            }
-
             public ICommand NavigateCommand => new RelayCommand(Navigate);
             public ICommand GoBackCommand => new RelayCommand(GoBack);
             public ICommand GoForwardCommand => new RelayCommand(GoForward);
 
             public ICommand RefreshCommand => new RelayCommand(Refresh);
-
-            
-
-            private void Navigate()
-            {
-                Console.WriteLine($"Navigating to: {Address}");
-                NavigateRequested?.Invoke(this, Address);
-            }
-
+            private void Navigate() => NavigateRequested?.Invoke(this, Address);
             public void GoBack() => RequestGoBack?.Invoke();
             public void GoForward() => RequestGoForward?.Invoke();
             public void Refresh() => RequestRefresh?.Invoke();
@@ -75,8 +52,7 @@ namespace NexaFox.ViewModels
             public event EventHandler<string> NavigateRequested;
 
             public event PropertyChangedEventHandler? PropertyChanged;
-            protected void OnPropertyChanged([CallerMemberName] string name = null)
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            protected void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 
         private string _currentUrl = "about:blank"; 

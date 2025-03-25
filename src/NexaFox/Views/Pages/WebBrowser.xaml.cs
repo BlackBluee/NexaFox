@@ -7,7 +7,6 @@ namespace NexaFox.Views.Pages
 {
     public partial class WebBrowser : UserControl
     {
-        private string _cachedState;
         private Uri _lastNavigatedUri;
         private bool _isWebViewInitialized = false;
         private string _pendingNavigation = null;
@@ -147,13 +146,8 @@ namespace NexaFox.Views.Pages
             }
         }
 
-        private void OnNavigateRequested(object sender, string url)
-        {
-            if (DataContext is WebBrowserViewModel vm && vm == sender)
-            {
-                NavigateToViewModelUrl(vm);
-            }
-        }
+        private void OnNavigateRequested(object sender, string url) => NavigateToViewModelUrl(DataContext as WebBrowserViewModel);
+
 
         private void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
@@ -167,29 +161,9 @@ namespace NexaFox.Views.Pages
             }
         }
 
-        private void OnGoBack()
-        {
-            if (_isWebViewInitialized && webView.CoreWebView2 != null && webView.CoreWebView2.CanGoBack)
-            {
-                webView.GoBack();
-            }
-        }
-
-        private void OnGoForward()
-        {
-            if (_isWebViewInitialized && webView.CoreWebView2 != null && webView.CoreWebView2.CanGoForward)
-            {
-                webView.GoForward();
-            }
-        }
-
-        private void OnRefresh()
-        {
-            if (_isWebViewInitialized && webView.CoreWebView2 != null)
-            {
-                webView.Reload();
-            }
-        }
+        private void OnGoBack() => webView?.CoreWebView2?.GoBack();
+        private void OnGoForward() => webView?.CoreWebView2?.GoForward();
+        private void OnRefresh() => webView?.CoreWebView2?.Reload();
 
         public void SaveState()
         {
