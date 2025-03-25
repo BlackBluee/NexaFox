@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace NexaFox.ViewModels
@@ -19,7 +13,6 @@ namespace NexaFox.ViewModels
             Title = "Web Browser";
             CurrentUrl = "about:blank"; 
         }
-
 
             private string _address;
             private bool _isNavigationInProgress;

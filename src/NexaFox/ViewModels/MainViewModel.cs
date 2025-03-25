@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
-using NexaFox.Views.Pages;
 
 
 namespace NexaFox.ViewModels
