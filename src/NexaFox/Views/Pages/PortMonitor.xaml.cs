@@ -1,5 +1,7 @@
 ﻿using NexaFox.ViewModels;
 using System.Windows.Controls;
+using System.Windows;
+
 
 namespace NexaFox.Views.Pages
 {
