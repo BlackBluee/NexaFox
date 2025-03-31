@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NexaFox.Views.Pages"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -69,9 +70,64 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
-    <Grid Background="White">
-        <Button Style="{StaticResource SearchButton}" Width="160" Height="50" Content="SEARCH 🔎" Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="ConnectButton">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="8 4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Style="{StaticResource SearchButton}" 
+                Content="SZUKAJ 🔎" 
+                Width="160" 
+                Height="50" 
+                Margin="10" 
+                HorizontalAlignment="Left"
+                Click="SearchButton_Click"/>
+
+        <DataGrid x:Name="PortsGrid" 
+                  Grid.Row="1" 
+                  Margin="10" 
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  ItemsSource="{Binding PortEntries}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="IP" Binding="{Binding IP}" Width="*"/>
+                <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="80"/>
+                <DataGridComboBoxColumn Header="Usługa" 
+                                      SelectedItemBinding="{Binding Service}"
+                                      Width="120">
+                    <DataGridComboBoxColumn.ItemsSource>
+                        <x:Array Type="{x:Type system:String}">
+                            <system:String>HTTP</system:String>
+                            <system:String>SSH</system:String>
+                            <system:String>FTP</system:String>
+                        </x:Array>
+                    </DataGridComboBoxColumn.ItemsSource>
+                </DataGridComboBoxColumn>
+                <DataGridTemplateColumn Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource ConnectButton}" 
+                                    Content="Połącz" 
+                                    Command="{Binding ConnectCommand}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>

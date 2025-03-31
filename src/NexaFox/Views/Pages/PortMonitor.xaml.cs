@@ -21,10 +21,16 @@ namespace NexaFox.Views.Pages
     /// </summary>
     public partial class PortMonitor : UserControl
     {
+        private PortMonitorViewModel _viewModel;
         public PortMonitor()
         {
             InitializeComponent();
-            this.DataContext = new PortMonitorViewModel();
+            _viewModel = new PortMonitorViewModel();
+            DataContext = _viewModel;
+        }
+        private async void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            await _viewModel.StartNetworkScan();
         }
     }
 }
