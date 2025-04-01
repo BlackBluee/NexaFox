@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NexaFox.Models;
+﻿using NexaFox.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
 
 namespace NexaFox.ViewModels
 {
