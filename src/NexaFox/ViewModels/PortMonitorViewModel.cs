@@ -6,98 +6,202 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 namespace NexaFox.ViewModels;
+
+using CommunityToolkit.Mvvm.Input;
 using NexaFox.Utilities;
-class PortMonitorViewModel : TabContentViewModelBase, INotifyPropertyChanged
+using System.Diagnostics;
+using System.Windows.Data;
+using System.Windows.Input;
+
+public class PortMonitorViewModel : TabContentViewModelBase // Usunięto INotifyPropertyChanged
 {
+    private int _totalScans;
+    private int _completedScans;
+    private readonly object _lock = new object();
+    private bool _isScanning;
+
     public ObservableCollection<PortEntry> PortEntries { get; } = new ObservableCollection<PortEntry>();
 
+    private RelayCommand _scanCommand;
+    public ICommand ScanCommand => _scanCommand ??= new RelayCommand(
+        async () => await StartNetworkScan(),
+        () => !IsScanning // Dodano warunek wykonania komendy
+    );
 
+    private int _progress;
+    public int Progress
+    {
+        get => _progress;
+        set
+        {
+            _progress = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsScanning
+    {
+        get => _isScanning;
+        private set
+        {
+            if (_isScanning != value)
+            {
+                _isScanning = value;
+                OnPropertyChanged();
+                _scanCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
 
     public PortMonitorViewModel()
     {
         Title = "Port Monitor";
+        BindingOperations.EnableCollectionSynchronization(PortEntries, _lock);
     }
 
     public async Task StartNetworkScan()
     {
-        PortEntries.Clear();
+        if (IsScanning) return;
 
-        var localIPs = GetLocalNetworkIPs();
-        var portsToScan = new int[] { 21, 22, 80, 443, 8080 };
-
-        await Task.Run(async () =>
+        try
         {
-            var tasks = new List<Task>();
+            IsScanning = true;
+            PortEntries.Clear();
 
-            foreach (var ip in localIPs)
+            var localIPs = GetLocalNetworkIPs();
+            var portsToScan = new[] { 21, 22, 80, 443, 8080 };
+
+            _totalScans = localIPs.Count * portsToScan.Length;
+            _completedScans = 0;
+            Progress = 0;
+
+            await Task.Run(() =>
             {
-                foreach (var port in portsToScan)
+                var options = new ParallelOptions
                 {
-                    tasks.Add(CheckPortAsync(ip, port));
-                }
-            }
+                    MaxDegreeOfParallelism = 20
+                };
 
-            await Task.WhenAll(tasks);
-        });
+                Parallel.ForEach(localIPs, options, ip =>
+                {
+                    foreach (var port in portsToScan)
+                    {
+                        CheckPort(ip, port);
+                        UpdateProgress();
+                    }
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Błąd podczas skanowania: {ex.Message}");
+            MessageBox.Show($"Wystąpił błąd podczas skanowania sieci: {ex.Message}",
+                "Błąd skanowania", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsScanning = false;
+        }
     }
 
-    private async Task CheckPortAsync(IPAddress ip, int port)
+    private void CheckPort(IPAddress ip, int port)
     {
         try
         {
             using var client = new TcpClient();
-            var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            var stopwatch = Stopwatch.StartNew();
 
-            await client.ConnectAsync(ip, port, cts.Token);
+            var result = client.BeginConnect(ip, port, null, null);
+            var success = result.AsyncWaitHandle.WaitOne(1500);
 
-            if (client.Connected)
+            if (success && client.Connected)
             {
-                var service = GetServiceName(port);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    PortEntries.Add(new PortEntry
-                    {
-                        IP = ip.ToString(),
-                        Port = port,
-                        Service = service
-                    });
-                });
+                client.EndConnect(result);
+                Debug.WriteLine($"Znaleziono otwarty port: {ip}:{port} ({stopwatch.ElapsedMilliseconds}ms)");
+                AddPortEntry(ip, port);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Błąd: {ip}:{port} - {ex.Message}");
+        }
+    }
+
+    private void AddPortEntry(IPAddress ip, int port)
+    {
+        lock (_lock)
+        {
+            PortEntries.Add(new PortEntry
+            {
+                IP = ip.ToString(),
+                Port = port,
+                Service = GetServiceName(port)
+            });
+        }
+    }
+
+    private void UpdateProgress()
+    {
+        var newProgress = (int)((double)Interlocked.Increment(ref _completedScans) / _totalScans * 100);
+
+        // Aktualizuj tylko gdy zmiana >= 1%
+        if (newProgress > Progress)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Progress = newProgress;
+            });
+        }
     }
 
     private List<IPAddress> GetLocalNetworkIPs()
     {
         var ips = new List<IPAddress>();
 
-        foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+        try
         {
-            if (ni.OperationalStatus != OperationalStatus.Up) continue;
-
-            foreach (var ipInfo in ni.GetIPProperties().UnicastAddresses)
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (ipInfo.Address.AddressFamily != AddressFamily.InterNetwork) continue;
-                if (ipInfo.IPv4Mask == null) continue;
+                if (ni.OperationalStatus != OperationalStatus.Up) continue;
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
 
-                uint network = NetworkCalculator.CalculateNetworkAddress(ipInfo.Address, ipInfo.IPv4Mask);
-                uint broadcast = NetworkCalculator.CalculateBroadcastAddress(ipInfo.Address, ipInfo.IPv4Mask);
-
-                for (uint i = 1; i <= broadcast - network; i++)
+                foreach (var ipInfo in ni.GetIPProperties().UnicastAddresses)
                 {
-                    uint currentAddress = network + i;
-                    byte[] addressBytes = BitConverter.GetBytes(currentAddress);
-                    if (BitConverter.IsLittleEndian) Array.Reverse(addressBytes);
-                    ips.Add(new IPAddress(addressBytes));
-                }
+                    if (ipInfo.Address.AddressFamily != AddressFamily.InterNetwork) continue;
+                    if (ipInfo.IPv4Mask == null) continue;
 
-                return ips; 
+                    // Obliczanie adresu sieci i broadcast za pomocą NetworkCalculator
+                    uint networkAddress = NetworkCalculator.CalculateNetworkAddress(ipInfo.Address, ipInfo.IPv4Mask);
+                    uint broadcastAddress = NetworkCalculator.CalculateBroadcastAddress(ipInfo.Address, ipInfo.IPv4Mask);
+
+                    // Generuj maksymalnie 20 adresów IP w sieci
+                    uint maxIps = Math.Min(20, broadcastAddress - networkAddress - 1);
+
+                    for (uint i = 1; i <= maxIps; i++)
+                    {
+                        uint hostAddress = networkAddress + i;
+                        byte[] addressBytes = BitConverter.GetBytes(hostAddress);
+                        if (BitConverter.IsLittleEndian) Array.Reverse(addressBytes);
+                        ips.Add(new IPAddress(addressBytes));
+                    }
+                }
+            }
+
+            // Dodaj localhost dla pewności
+            if (!ips.Contains(IPAddress.Loopback))
+            {
+                ips.Add(IPAddress.Loopback);
             }
         }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Błąd podczas pobierania adresów sieciowych: {ex.Message}");
+            // Dodaj localhost jako fallback
+            ips.Add(IPAddress.Loopback);
+        }
+
         return ips;
     }
-
-    
 
     private string GetServiceName(int port) => port switch
     {
@@ -108,9 +212,5 @@ class PortMonitorViewModel : TabContentViewModelBase, INotifyPropertyChanged
         8080 => "HTTP Alt",
         _ => "Unknown"
     };
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected virtual void OnPropertyChanged(string propertyName) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 
