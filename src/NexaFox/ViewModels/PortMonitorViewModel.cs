@@ -1,34 +1,36 @@
 ﻿using NexaFox.Models;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Windows;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-namespace NexaFox.ViewModels;
-
 using CommunityToolkit.Mvvm.Input;
-using NexaFox.Utilities;
 using System.Diagnostics;
 using System.Windows.Data;
 using System.Windows.Input;
+using NexaFox.Services;
 
-public class PortMonitorViewModel : TabContentViewModelBase // Usunięto INotifyPropertyChanged
+namespace NexaFox.ViewModels;
+public class PortMonitorViewModel : TabContentViewModelBase
 {
-    private int _totalScans;
-    private int _completedScans;
+    private readonly NetworkScannerService _scannerService;
     private readonly object _lock = new object();
     private bool _isScanning;
+    private CancellationTokenSource? _cancellationTokenSource;
+    private int _progress;
 
     public ObservableCollection<PortEntry> PortEntries { get; } = new ObservableCollection<PortEntry>();
+    public ObservableCollection<Models.PortOption> AvailablePorts { get; } = new ObservableCollection<Models.PortOption>();
 
-    private RelayCommand _scanCommand;
+    private RelayCommand? _scanCommand;
     public ICommand ScanCommand => _scanCommand ??= new RelayCommand(
         async () => await StartNetworkScan(),
-        () => !IsScanning // Dodano warunek wykonania komendy
+        () => !IsScanning
     );
 
-    private int _progress;
+    private RelayCommand? _cancelCommand;
+    public ICommand CancelCommand => _cancelCommand ??= new RelayCommand(
+        CancelScan,
+        () => IsScanning
+    );
+
     public int Progress
     {
         get => _progress;
@@ -48,15 +50,28 @@ public class PortMonitorViewModel : TabContentViewModelBase // Usunięto INotify
             {
                 _isScanning = value;
                 OnPropertyChanged();
-                _scanCommand.NotifyCanExecuteChanged();
+                _scanCommand?.NotifyCanExecuteChanged();
+                _cancelCommand?.NotifyCanExecuteChanged();
             }
         }
     }
 
-    public PortMonitorViewModel()
+    public PortMonitorViewModel(NetworkScannerService? scannerService = null)
     {
         Title = "Port Monitor";
+        _scannerService = scannerService ?? new NetworkScannerService();
         BindingOperations.EnableCollectionSynchronization(PortEntries, _lock);
+        InitializeAvailablePorts();
+    }
+
+    private void InitializeAvailablePorts()
+    {
+        AvailablePorts.Clear();
+        var portOptions = _scannerService.GetAvailablePortOptions();
+        foreach (var option in portOptions)
+        {
+            AvailablePorts.Add(option);
+        }
     }
 
     public async Task StartNetworkScan()
@@ -65,31 +80,76 @@ public class PortMonitorViewModel : TabContentViewModelBase // Usunięto INotify
 
         try
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            var token = _cancellationTokenSource.Token;
+
             IsScanning = true;
             PortEntries.Clear();
 
-            var localIPs = GetLocalNetworkIPs();
-            var portsToScan = new[] { 21, 22, 80, 443, 8080 };
+            var portsToScan = AvailablePorts
+                .Where(p => p.IsSelected)
+                .Select(p => p.Port)
+                .ToArray();
 
-            _totalScans = localIPs.Count * portsToScan.Length;
-            _completedScans = 0;
+            if (portsToScan.Length == 0)
+            {
+                MessageBox.Show("Proszę wybrać co najmniej jeden port do skanowania.",
+                    "Brak wybranych portów", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             Progress = 0;
 
-            await Task.Run(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                var options = new ParallelOptions
+                PortEntries.Add(new PortEntry
                 {
-                    MaxDegreeOfParallelism = 20
-                };
-
-                Parallel.ForEach(localIPs, options, ip =>
-                {
-                    foreach (var port in portsToScan)
-                    {
-                        CheckPort(ip, port);
-                        UpdateProgress();
-                    }
+                    IP = "Skanowanie...",
+                    Port = 0,
+                    Service = "Sprawdzanie adresów IP"
                 });
+            });
+
+            var progress = new Progress<int>(p => Progress = p);
+
+            await _scannerService.ScanNetworkAsync(
+                portsToScan,
+                progress,
+                token,
+                portEntry =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        PortEntries.Add(portEntry);
+                    });
+                });
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var infoEntry = PortEntries.FirstOrDefault(p => p.IP == "Skanowanie...");
+                if (infoEntry != null)
+                {
+                    PortEntries.Remove(infoEntry);
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    PortEntries.Add(new PortEntry
+                    {
+                        IP = "Anulowano",
+                        Port = 0,
+                        Service = "Skanowanie zostało przerwane"
+                    });
+                }
+                else if (PortEntries.Count == 0)
+                {
+                    PortEntries.Add(new PortEntry
+                    {
+                        IP = "Nie znaleziono",
+                        Port = 0,
+                        Service = "Brak otwartych portów"
+                    });
+                }
             });
         }
         catch (Exception ex)
@@ -97,120 +157,29 @@ public class PortMonitorViewModel : TabContentViewModelBase // Usunięto INotify
             Debug.WriteLine($"Błąd podczas skanowania: {ex.Message}");
             MessageBox.Show($"Wystąpił błąd podczas skanowania sieci: {ex.Message}",
                 "Błąd skanowania", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                PortEntries.Add(new PortEntry
+                {
+                    IP = "Błąd",
+                    Port = 0,
+                    Service = ex.Message
+                });
+            });
         }
         finally
         {
             IsScanning = false;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null; 
         }
     }
 
-    private void CheckPort(IPAddress ip, int port)
-    {
-        try
-        {
-            using var client = new TcpClient();
-            var stopwatch = Stopwatch.StartNew();
-
-            var result = client.BeginConnect(ip, port, null, null);
-            var success = result.AsyncWaitHandle.WaitOne(1500);
-
-            if (success && client.Connected)
-            {
-                client.EndConnect(result);
-                Debug.WriteLine($"Znaleziono otwarty port: {ip}:{port} ({stopwatch.ElapsedMilliseconds}ms)");
-                AddPortEntry(ip, port);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Błąd: {ip}:{port} - {ex.Message}");
-        }
-    }
-
-    private void AddPortEntry(IPAddress ip, int port)
-    {
-        lock (_lock)
-        {
-            PortEntries.Add(new PortEntry
-            {
-                IP = ip.ToString(),
-                Port = port,
-                Service = GetServiceName(port)
-            });
-        }
-    }
-
-    private void UpdateProgress()
-    {
-        var newProgress = (int)((double)Interlocked.Increment(ref _completedScans) / _totalScans * 100);
-
-        // Aktualizuj tylko gdy zmiana >= 1%
-        if (newProgress > Progress)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Progress = newProgress;
-            });
-        }
-    }
-
-    private List<IPAddress> GetLocalNetworkIPs()
-    {
-        var ips = new List<IPAddress>();
-
-        try
-        {
-            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (ni.OperationalStatus != OperationalStatus.Up) continue;
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
-
-                foreach (var ipInfo in ni.GetIPProperties().UnicastAddresses)
-                {
-                    if (ipInfo.Address.AddressFamily != AddressFamily.InterNetwork) continue;
-                    if (ipInfo.IPv4Mask == null) continue;
-
-                    // Obliczanie adresu sieci i broadcast za pomocą NetworkCalculator
-                    uint networkAddress = NetworkCalculator.CalculateNetworkAddress(ipInfo.Address, ipInfo.IPv4Mask);
-                    uint broadcastAddress = NetworkCalculator.CalculateBroadcastAddress(ipInfo.Address, ipInfo.IPv4Mask);
-
-                    // Generuj maksymalnie 20 adresów IP w sieci
-                    uint maxIps = Math.Min(20, broadcastAddress - networkAddress - 1);
-
-                    for (uint i = 1; i <= maxIps; i++)
-                    {
-                        uint hostAddress = networkAddress + i;
-                        byte[] addressBytes = BitConverter.GetBytes(hostAddress);
-                        if (BitConverter.IsLittleEndian) Array.Reverse(addressBytes);
-                        ips.Add(new IPAddress(addressBytes));
-                    }
-                }
-            }
-
-            // Dodaj localhost dla pewności
-            if (!ips.Contains(IPAddress.Loopback))
-            {
-                ips.Add(IPAddress.Loopback);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Błąd podczas pobierania adresów sieciowych: {ex.Message}");
-            // Dodaj localhost jako fallback
-            ips.Add(IPAddress.Loopback);
-        }
-
-        return ips;
-    }
-
-    private string GetServiceName(int port) => port switch
-    {
-        21 => "FTP",
-        22 => "SSH",
-        80 => "HTTP",
-        443 => "HTTPS",
-        8080 => "HTTP Alt",
-        _ => "Unknown"
-    };
+    private void CancelScan()=>_cancellationTokenSource?.Cancel();
+    
 }
+
+
+
 

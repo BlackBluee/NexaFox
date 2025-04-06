@@ -1,6 +1,7 @@
 ﻿using NexaFox.ViewModels;
 using System.Windows.Controls;
 using System.Windows;
+using NexaFox.Services;
 
 
 namespace NexaFox.Views.Pages
@@ -11,12 +12,9 @@ namespace NexaFox.Views.Pages
         public PortMonitor()
         {
             InitializeComponent();
-            _viewModel = new PortMonitorViewModel();
+            var scannerService = new NetworkScannerService();
+            _viewModel = new PortMonitorViewModel(scannerService);
             DataContext = _viewModel;
-        }
-        private async void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            await _viewModel.StartNetworkScan();
         }
     }
 }

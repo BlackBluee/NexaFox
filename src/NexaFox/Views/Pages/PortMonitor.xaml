@@ -71,6 +71,18 @@
             </Setter>
         </Style>
 
+        <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource SearchButton}">
+            <Setter Property="Background" Value="#F44336"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D32F2F"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#B71C1C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style TargetType="ComboBox">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Padding" Value="3"/>
@@ -82,43 +94,72 @@
             <Setter Property="Padding" Value="8 4"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+        
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="5,2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0"
+                    Style="{StaticResource SearchButton}" 
+                    Content="Rozpocznij skanowanie" 
+                    Width="180" 
+                    Height="50" 
+                    Margin="10" 
+                    HorizontalAlignment="Left"
+                    Command="{Binding ScanCommand}"/>
+                    
+            <Button Grid.Column="1"
+                    Style="{StaticResource CancelButton}" 
+                    Content="Anuluj skanowanie" 
+                    Width="160" 
+                    Height="50" 
+                    Margin="10" 
+                    HorizontalAlignment="Left"
+                    Command="{Binding CancelCommand}"/>
+                    
+            <ProgressBar Grid.Column="2"
+                         Minimum="0"
+                         Maximum="100"
+                         Value="{Binding Progress}" 
+                         Height="25" 
+                         Margin="10"/>
+        </Grid>
         
-
-        <Button Style="{StaticResource SearchButton}" 
-                Content="Start search" 
-                Width="160" 
-                Height="50" 
-                Margin="10" 
-                HorizontalAlignment="Left"
-                Click="SearchButton_Click"/>
-        <ProgressBar Grid.Row="0"
-             Minimum="0"
-             Maximum="100"
-             Value="{Binding Progress}" 
-             Height="55" 
-             Margin="10"/>
-        <Button Grid.Row="0"
-        Style="{StaticResource SearchButton}" 
-        Content="Start search" 
-        Width="160" 
-        Height="50" 
-        Margin="10" 
-        HorizontalAlignment="Left"
-        Command="{Binding ScanCommand}"/>
-
-
-
+        <GroupBox Grid.Row="1" Header="Wybierz porty do skanowania" Margin="10,0,10,10">
+            <ItemsControl ItemsSource="{Binding AvailablePorts}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Description}" 
+                                  IsChecked="{Binding IsSelected}" 
+                                  MinWidth="150"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </GroupBox>
 
         <DataGrid x:Name="PortsGrid" 
-                  Grid.Row="1" 
+                  Grid.Row="2" 
                   Margin="10" 
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
@@ -126,17 +167,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="IP" Binding="{Binding IP}" Width="*"/>
                 <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="80"/>
-                <DataGridComboBoxColumn Header="Usługa" 
-                                      SelectedItemBinding="{Binding Service}"
-                                      Width="120">
-                    <DataGridComboBoxColumn.ItemsSource>
-                        <x:Array Type="{x:Type system:String}">
-                            <system:String>HTTP</system:String>
-                            <system:String>SSH</system:String>
-                            <system:String>FTP</system:String>
-                        </x:Array>
-                    </DataGridComboBoxColumn.ItemsSource>
-                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Usługa" Binding="{Binding Service}" Width="120"/>
                 <DataGridTemplateColumn Width="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
