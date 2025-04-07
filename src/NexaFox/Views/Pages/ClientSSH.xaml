@@ -4,19 +4,312 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NexaFox.Views.Pages"
+             xmlns:vm="clr-namespace:NexaFox.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="White">
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+             d:DesignHeight="550" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FAFAFA"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ConnectButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" 
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#106EBE"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#505050"/>
+                                <Setter Property="Foreground" Value="#A0A0A0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FAFAFA"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TerminalStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#DCDCDC"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InputLineStyle" TargetType="TextBox" BasedOn="{StaticResource TerminalStyle}">
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="Foreground" Value="#E6E6E6"/>
+            <Setter Property="IsReadOnly" Value="False"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AcceptsReturn" Value="False"/> 
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#252526">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#1F1F1F" BorderBrush="#333333" BorderThickness="0,0,1,0">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Nagłówek z ikoną -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="&#xE756;" 
+                               FontFamily="Segoe MDL2 Assets" 
+                               FontSize="24" 
+                               Foreground="#0078D7" 
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="Połączenie SSH" 
+                               FontSize="22" 
+                               FontWeight="SemiBold" 
+                               Foreground="#E6E6E6" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Panel formularza połączenia -->
+                <Border Grid.Row="1" 
+                        Background="#252526" 
+                        CornerRadius="6" 
+                        Padding="15" 
+                        BorderBrush="#3F3F46" 
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Host" Style="{StaticResource LabelStyle}"/>
+                        <Grid>
+                            <TextBox x:Name="HostTextBox" 
+                                     Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource TextBoxStyle}"/>
+                            <TextBlock Text="np. 192.168.1.1" 
+                                       Visibility="{Binding ElementName=HostTextBox, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Foreground="#808080" 
+                                       Margin="10,7,0,0" 
+                                       IsHitTestVisible="False"/>
+                        </Grid>
+                        <TextBlock Text="Nazwa użytkownika" Style="{StaticResource LabelStyle}"/>
+                        <Grid>
+                            <TextBox x:Name="UserTextBox" 
+                                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource TextBoxStyle}"/>
+                            <TextBlock Text="np. admin" 
+                                       Visibility="{Binding ElementName=UserTextBox, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Foreground="#808080" 
+                                       Margin="10,7,0,0" 
+                                       IsHitTestVisible="False"/>
+                        </Grid>
+
+                        <TextBlock Text="Hasło" Style="{StaticResource LabelStyle}"/>
+                        <Grid Margin="0,0,0,16">
+                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource PasswordBoxStyle}"/>
+                            <TextBlock x:Name="PasswordPlaceholder" 
+                                       Text="••••••••" 
+                                       Foreground="#808080" 
+                                       Margin="10,7,0,0"
+                                       IsHitTestVisible="False"/>
+                        </Grid>
+
+                        <TextBlock Text="Port (opcjonalnie)" Style="{StaticResource LabelStyle}"/>
+                        <Grid>
+                            <TextBox x:Name="PortTextBox" 
+                                     Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource TextBoxStyle}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Przycisk połączenia -->
+                <Button x:Name="ConnectButton" 
+                        Height="40"
+                        Width="160"
+                        Grid.Row="2"
+                        Margin="0,15,0,0"
+                        Style="{StaticResource ConnectButtonStyle}"
+                        Command="{Binding ConnectCommand}"
+                        HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8A7;" 
+                                   FontFamily="Segoe MDL2 Assets" 
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Połącz" 
+           x:Name="ConnectButtonText"
+                            Visibility="{Binding InputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+           VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ConnectButtonText}" 
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Panel terminala -->
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="SSH Client" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
-            <TextBox HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" Text="IP" VerticalAlignment="Center" Width="240"/>
-            <Button Content="Connect" Grid.Row="2" HorizontalAlignment="Center" Margin="10" VerticalAlignment="Center"/>
-        </Grid>
 
+            <!-- Pasek informacyjny terminala -->
+            <Border Grid.Row="0" 
+                    Background="#333333" 
+                    Height="36">
+                <StackPanel Orientation="Horizontal" 
+                            VerticalAlignment="Center" 
+                            Margin="12,0">
+                    <TextBlock Text="&#xE756;" 
+                               FontFamily="Segoe MDL2 Assets" 
+                               Foreground="#0078D7" 
+                               FontSize="16"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Terminal SSH" 
+                               Foreground="#E6E6E6" 
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Terminal output -->
+            <TextBox x:Name="OutputBox" 
+                     Text="{Binding TerminalOutput, Mode=OneWay}"
+                     Grid.Row="1"
+                     Style="{StaticResource TerminalStyle}"
+                     Margin="0"/>
+
+            <!-- Wiersz wprowadzania poleceń -->
+            <Border Grid.Row="2" 
+                    Background="#252526" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="0,1,0,0">
+                <Grid Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="$ " 
+                               Foreground="#4EC9B0" 
+                               FontFamily="Consolas" 
+                               FontSize="14" 
+                               VerticalAlignment="Center" 
+                               Margin="12,0,4,0"
+                               Visibility="{Binding ElementName=InputBox, Path=Visibility}"/>
+
+                    <TextBox x:Name="InputBox" 
+                             Text="{Binding InputCommand, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Style="{StaticResource InputLineStyle}"
+                             Padding="0,12,12,12"
+                             Margin="0"
+                             AcceptsReturn="False"
+                             Visibility="{Binding InputVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SendCommandCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
