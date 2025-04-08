@@ -21,7 +21,6 @@ namespace NexaFox.Views.Pages
                 }
             }
         }
-
         public WebBrowser()
         {
             InitializeComponent();
@@ -29,7 +28,31 @@ namespace NexaFox.Views.Pages
             DataContextChanged += OnDataContextChanged;
             Unloaded += OnUnloaded; 
         }
-        
+
+        private void OnLighthouseReportReady(object sender, string htmlReport)
+        {
+            if (_isWebViewInitialized && webView.CoreWebView2 != null)
+            {
+                webView.CoreWebView2.NavigateToString(htmlReport);
+
+                _lastNavigatedUri = new Uri("lighthouse:report");
+
+                if (DataContext is WebBrowserViewModel vm)
+                {
+                    vm.SetAddressWithoutNavigation("Lighthouse Report");
+                }
+            }
+            else
+            {
+                MessageBox.Show("WebView nie jest jeszcze gotowy. Poczekaj chwile lub spróbuj ponownie za chwilę.");
+            }
+        }
+
+        private void OnLighthouseReportError(object sender, string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Błąd Lighthouse", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.OldValue is WebBrowserViewModel oldVm)
@@ -38,6 +61,8 @@ namespace NexaFox.Views.Pages
                 oldVm.RequestGoBack -= OnGoBack;
                 oldVm.RequestGoForward -= OnGoForward;
                 oldVm.RequestRefresh -= OnRefresh;
+                oldVm.LighthouseReportReady -= OnLighthouseReportReady;
+                oldVm.LighthouseReportError -= OnLighthouseReportError;
             }
 
             if (e.NewValue is WebBrowserViewModel newVm)
@@ -46,6 +71,8 @@ namespace NexaFox.Views.Pages
                 newVm.RequestGoBack += OnGoBack;
                 newVm.RequestGoForward += OnGoForward;
                 newVm.RequestRefresh += OnRefresh;
+                newVm.LighthouseReportReady += OnLighthouseReportReady;
+                newVm.LighthouseReportError += OnLighthouseReportError;
 
                 if (!string.IsNullOrEmpty(newVm.LastNavigatedUrl) && _isWebViewInitialized)
                 {

@@ -3,6 +3,9 @@
     "chrome-launcher": "^1.1.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "lighthouse": "^12.5.1"
+    "lighthouse": "^8.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.24.0"
   }
 }

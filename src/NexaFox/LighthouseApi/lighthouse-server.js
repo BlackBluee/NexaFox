@@ -10,15 +10,25 @@ app.use(express.json());
 app.post('/audit', async (req, res) => {
     const url = req.body.url;
 
-    const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
-    const result = await lighthouse(url, {
-        port: chrome.port,
-        output: 'html',
-    });
+    try {
+        const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
 
-    await chrome.kill();
+        const options = {
+            logLevel: 'info',
+            output: 'html',
+            onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+            port: chrome.port,
+        };
 
-    res.send(result.report);
+        const runnerResult = await lighthouse(url, options);
+
+        await chrome.kill();
+
+        res.send(runnerResult.report);
+    } catch (error) {
+        console.error('Lighthouse error:', error);
+        res.status(500).send(`Error running Lighthouse: ${error.message}`);
+    }
 });
 
 app.listen(3000, () => console.log('Lighthouse API listening on port 3000'));
