@@ -399,7 +399,9 @@
                             <Button Style="{StaticResource ConnectButtonStyle}" 
                                     Content="Połącz" 
                                     Height="30"
-                                    Command="{Binding ConnectCommand}">
+                                    Command="{Binding DataContext.ConnectPortCommand, 
+                                              RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding}">
                                 <Button.ContentTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">

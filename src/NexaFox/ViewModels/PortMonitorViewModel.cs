@@ -15,6 +15,7 @@ public class PortMonitorViewModel : TabContentViewModelBase
     private bool _isScanning;
     private CancellationTokenSource? _cancellationTokenSource;
     private int _progress;
+    private MainViewModel _mainViewModel;
 
     public ObservableCollection<PortEntry> PortEntries { get; } = new ObservableCollection<PortEntry>();
     public ObservableCollection<Models.PortOption> AvailablePorts { get; } = new ObservableCollection<Models.PortOption>();
@@ -29,6 +30,12 @@ public class PortMonitorViewModel : TabContentViewModelBase
     public ICommand CancelCommand => _cancelCommand ??= new RelayCommand(
         CancelScan,
         () => IsScanning
+    );
+
+    private RelayCommand<PortEntry>? _connectPortCommand;
+    public ICommand ConnectPortCommand => _connectPortCommand ??= new RelayCommand<PortEntry>(
+        ConnectToPort,
+        entry => entry != null && entry.Port > 0 && !string.IsNullOrEmpty(entry.IP)
     );
 
     public int Progress
@@ -62,6 +69,9 @@ public class PortMonitorViewModel : TabContentViewModelBase
         _scannerService = scannerService ?? new NetworkScannerService();
         BindingOperations.EnableCollectionSynchronization(PortEntries, _lock);
         InitializeAvailablePorts();
+
+        _mainViewModel = (Application.Current.MainWindow.DataContext as MainViewModel)
+            ?? throw new InvalidOperationException("MainViewModel not found");
     }
 
     private void InitializeAvailablePorts()
@@ -72,6 +82,112 @@ public class PortMonitorViewModel : TabContentViewModelBase
         {
             AvailablePorts.Add(option);
         }
+    }
+
+    private void ConnectToPort(PortEntry portEntry)
+    {
+        if (portEntry == null || string.IsNullOrEmpty(portEntry.IP) ||
+            portEntry.IP == "Nie znaleziono" || portEntry.IP == "Błąd" ||
+            portEntry.IP == "Anulowano" || portEntry.IP == "Skanowanie...")
+        {
+            return;
+        }
+
+        try
+        {
+            switch (portEntry.Port)
+            {
+                case 80:
+                case 443:
+                case 8080:
+                case 8443:
+                    OpenWebBrowser(portEntry.IP, portEntry.Port);
+                    break;
+
+                case 21:
+                case 2121:
+                    OpenFTP(portEntry.IP, portEntry.Port);
+                    break;
+
+                case 22:
+                case 222:
+                case 2222:
+                default:
+                    OpenSSH(portEntry.IP, portEntry.Port);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Błąd podczas otwierania połączenia: {ex.Message}",
+                "Błąd połączenia", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void OpenWebBrowser(string ip, int port)
+    {
+        var protocol = (port == 443 || port == 8443) ? "https" : "http";
+        var uri = $"{protocol}://{ip}";
+
+        if ((port != 80 && port != 443) ||
+            (port == 80 && protocol == "https") ||
+            (port == 443 && protocol == "http"))
+        {
+            uri += $":{port}";
+        }
+
+        var browserView = new Views.Pages.WebBrowser();
+        var viewModel = new WebBrowserViewModel();
+        viewModel.Address = uri;
+
+        var newTab = new TabItemViewModel
+        {
+            Content = viewModel,
+            View = browserView
+        };
+
+        browserView.DataContext = viewModel;
+        _mainViewModel.Tabs.Add(newTab);
+        _mainViewModel.SelectedTab = newTab;
+    }
+
+    private void OpenSSH(string ip, int port)
+    {
+        var sshView = new Views.Pages.ClientSSH();
+        var viewModel = new SSHViewModel();
+
+        viewModel.Host = ip;
+        viewModel.Port = port.ToString();
+
+        var newTab = new TabItemViewModel
+        {
+            Content = viewModel,
+            View = sshView
+        };
+
+        sshView.DataContext = viewModel;
+        _mainViewModel.Tabs.Add(newTab);
+        _mainViewModel.SelectedTab = newTab;
+    }
+
+    private void OpenFTP(string ip, int port)
+    {
+        var ftpView = new Views.Pages.ClientFTP();
+        var viewModel = new FTPViewModel();
+
+        // Ustawić właściwości FTPViewModel (jeśli są dostępne)
+        // viewModel.Host = ip;
+        // viewModel.Port = port.ToString();
+
+        var newTab = new TabItemViewModel
+        {
+            Content = viewModel,
+            View = ftpView
+        };
+
+        ftpView.DataContext = viewModel;
+        _mainViewModel.Tabs.Add(newTab);
+        _mainViewModel.SelectedTab = newTab;
     }
 
     public async Task StartNetworkScan()
@@ -172,12 +288,11 @@ public class PortMonitorViewModel : TabContentViewModelBase
         {
             IsScanning = false;
             _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null; 
+            _cancellationTokenSource = null;
         }
     }
 
-    private void CancelScan()=>_cancellationTokenSource?.Cancel();
-    
+    private void CancelScan() => _cancellationTokenSource?.Cancel();
 }
 
 

@@ -113,6 +113,8 @@
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
             <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="IsUndoEnabled" Value="False"/>
+            <Setter Property="CaretBrush" Value="Transparent"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -121,7 +123,9 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="4">
                             <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="{TemplateBinding Padding}"/>
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -151,7 +155,6 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Nagłówek z ikoną -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
                     <TextBlock Text="&#xE756;" 
                                FontFamily="Segoe MDL2 Assets" 
@@ -166,7 +169,7 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Panel formularza połączenia -->
+
                 <Border Grid.Row="1" 
                         Background="#252526" 
                         CornerRadius="6" 
@@ -216,7 +219,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Przycisk połączenia -->
                 <Button x:Name="ConnectButton" 
                         Height="40"
                         Width="160"
@@ -241,7 +243,6 @@
             </Grid>
         </Border>
 
-        <!-- Panel terminala -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -249,7 +250,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Pasek informacyjny terminala -->
+
             <Border Grid.Row="0" 
                     Background="#333333" 
                     Height="36">
@@ -270,14 +271,36 @@
                 </StackPanel>
             </Border>
 
-            <!-- Terminal output -->
-            <TextBox x:Name="OutputBox" 
-                     Text="{Binding TerminalOutput, Mode=OneWay}"
-                     Grid.Row="1"
-                     Style="{StaticResource TerminalStyle}"
-                     Margin="0"/>
 
-            <!-- Wiersz wprowadzania poleceń -->
+            <RichTextBox x:Name="OutputBox" 
+                         Grid.Row="1"
+                         Background="Black"
+                         Foreground="#DCDCDC"
+                         FontFamily="Consolas"
+                         FontSize="14"
+                         Padding="12"
+                         BorderBrush="#3F3F46"
+                         BorderThickness="1"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto"
+                         IsUndoEnabled="False"
+                         AcceptsReturn="True"
+                         TextOptions.TextFormattingMode="Display"
+                         TextOptions.TextRenderingMode="ClearType"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="LineHeight" Value="18"/>
+                        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+                    </Style>
+                </RichTextBox.Resources>
+                <FlowDocument LineHeight="18" PagePadding="0"/>
+            </RichTextBox>
+
+
             <Border Grid.Row="2" 
                     Background="#252526" 
                     BorderBrush="#3F3F46" 
