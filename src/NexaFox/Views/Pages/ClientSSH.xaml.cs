@@ -52,9 +52,7 @@ namespace NexaFox.Views.Pages
                 {
                     bool wasAtEnd = IsScrolledToEnd();
                     string cleanedText = text;
-                    cleanedText = Regex.Replace(cleanedText, @"\[(?:\?|\d+)[a-zA-Z]", ""); 
-                    cleanedText = Regex.Replace(cleanedText, @"\]\d+;.*?(?:\a|\x07)", "");
-
+                    
                     _ansiParser.ParseAnsiText(cleanedText, OutputBox.Document);
 
                     if (wasAtEnd)
@@ -66,11 +64,7 @@ namespace NexaFox.Views.Pages
                 {
                     try
                     {
-                        string ultraCleanText = Regex.Replace(text, @"(\x1b|\x07|\a)[\[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]", "");
-                        ultraCleanText = Regex.Replace(ultraCleanText, @"\[(?:\?|\d+)[a-zA-Z]", "");
-                        ultraCleanText = Regex.Replace(ultraCleanText, @"\]\d+;.*?[\a\x07]", "");
-
-                        OutputBox.AppendText(ultraCleanText);
+                        OutputBox.AppendText(text);
                         if (_autoScroll)
                         {
                             OutputBox.ScrollToEnd();

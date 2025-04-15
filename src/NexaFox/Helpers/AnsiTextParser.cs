@@ -74,7 +74,7 @@ namespace NexaFox.Helpers
 
                 text = PromptSequenceRegex.Replace(text, string.Empty);
                 text = QuestionMarkSequenceRegex.Replace(text, string.Empty);
-                text = AnsiClearLineRegex.Replace(text, string.Empty)
+                text = AnsiClearLineRegex.Replace(text, string.Empty);
                 text = AnsiCursorRegex.Replace(text, string.Empty);
 
                 int lastIndex = 0;

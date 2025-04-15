@@ -232,10 +232,7 @@
                                    FontFamily="Segoe MDL2 Assets" 
                                    Margin="0,0,8,0"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="Połącz" 
-           x:Name="ConnectButtonText"
-                            Visibility="{Binding InputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-           VerticalAlignment="Center"/>
+                        
                         <TextBlock Text="{Binding ConnectButtonText}" 
                                    VerticalAlignment="Center"/>
                     </StackPanel>

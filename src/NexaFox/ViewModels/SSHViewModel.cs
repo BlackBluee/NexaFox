@@ -278,57 +278,15 @@ namespace NexaFox.ViewModels
             }
         }
 
-        // W SSHViewModel.cs
         private void AppendOutput(string text)
         {
-            // Przygotuj tekst do wyświetlenia
             string processedText = text;
-
-            // Usuń konkretne problematyczne sekwencje, które nie są prawidłowo przetwarzane
-            processedText = Regex.Replace(processedText, @"\[(?:\?|\d+)[a-zA-Z]", ""); // Usuń [?2004h]
-            processedText = Regex.Replace(processedText, @"\]\d+;", ""); // Usuń sekwencje ]0;
-            processedText = Regex.Replace(processedText, @"\$\s+$", "$"); // Napraw znak zachęty $
-
-            // Obsługa znaków powrotu karetki (używane do animacji terminala)
-            processedText = Regex.Replace(processedText, @"[^\r\n]*\r(?!\n)", "");
-
-            // Wywołaj zdarzenie z przetworzonym tekstem zawierającym kody ANSI do kolorowania
             TerminalOutputUpdated?.Invoke(this, processedText);
-
-            // Także zachowaj czystą wersję tekstu w modelu widoku bez kodów ANSI
-            string cleanText = CleanAnsiCodes(processedText);
-
             Application.Current.Dispatcher.Invoke(() =>
             {
-                TerminalOutput += cleanText;
+                TerminalOutput += processedText;
                 OnPropertyChanged(nameof(TerminalOutput));
             });
-        }
-
-        private string CleanAnsiCodes(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-
-            // 1. Usuń sekwencje typu ]0;...
-            text = Regex.Replace(text, @"\]\d+;.*?(?:\a|\x07)", "");
-
-            // 2. Usuń sekwencje typu [?2004h
-            text = Regex.Replace(text, @"\[(?:\?|\d+)[a-zA-Z]", "");
-
-            // 3. Kolorowanie i formatowanie - sekwencje zakończone 'm'
-            text = Regex.Replace(text, @"\x1b\[\d*(?:;\d*)*m", "");
-
-            // 4. Sekwencje sterujące kursorem - zakończone literami A-Za-z, ale nie 'm'
-            text = Regex.Replace(text, @"\x1b\[\d*[A-Za-jl-zA-JL-Z]", "");
-
-            // 5. Inne sekwencje sterujące rozpoczynające się od ESC[
-            text = Regex.Replace(text, @"\x1b\[[^A-Za-z]*[A-Za-z]", "");
-
-            // 6. Pozostałe sekwencje zaczynające się od ESC
-            text = Regex.Replace(text, @"\x1b[^[]*", "");
-
-            return text;
         }
 
         private void CloseConnection()
