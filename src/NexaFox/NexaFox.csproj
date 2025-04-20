@@ -9,21 +9,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\**" />
     <Compile Remove="Nowy folder1\**" />
+    <Compile Remove="View\**" />
+    <EmbeddedResource Remove="Model\**" />
     <EmbeddedResource Remove="Nowy folder1\**" />
+    <EmbeddedResource Remove="View\**" />
+    <None Remove="Model\**" />
     <None Remove="Nowy folder1\**" />
+    <None Remove="View\**" />
+    <Page Remove="Model\**" />
     <Page Remove="Nowy folder1\**" />
+    <Page Remove="View\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="LighthouseApi\lighthouse-server.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="LighthouseApi\lighthouse-server.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="FluentFTP" Version="52.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="9.0.40" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3065.39" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Model\" />
-    <Folder Include="ViewModel\" />
-    <Folder Include="View\" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

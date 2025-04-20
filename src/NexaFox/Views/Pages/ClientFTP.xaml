@@ -1,0 +1,406 @@
+﻿<UserControl x:Class="NexaFox.Views.Pages.ClientFTP"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NexaFox.Views.Pages"
+             xmlns:vm="clr-namespace:NexaFox.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="900">
+
+    <UserControl.DataContext>
+        <vm:FTPViewModel />
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FAFAFA"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <Style x:Key="ConnectButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#106EBE"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#505050"/>
+                                <Setter Property="Foreground" Value="#A0A0A0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FAFAFA"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FileListStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#DCDCDC"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <Style x:Key="FileListItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="0,0,0,1"
+                                BorderBrush="#333333"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#264F78"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#3E3E42"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+    </UserControl.Resources>
+
+    <Grid Background="#252526">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#1F1F1F" BorderBrush="#333333" BorderThickness="0,0,1,0">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="&#xE8A5;" 
+                               FontFamily="Segoe MDL2 Assets" 
+                               FontSize="24" 
+                               Foreground="#0078D7" 
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="Klient FTP" 
+                               FontSize="22" 
+                               FontWeight="SemiBold" 
+                               Foreground="#E6E6E6" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+
+                <StackPanel Grid.Row="1">
+                    <TextBlock Text="Serwer" Style="{StaticResource LabelStyle}"/>
+                    <Grid>
+                        <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource TextBoxStyle}"/>
+                        <TextBlock Text="np. ftp.example.com" 
+                                   Visibility="{Binding Host, Converter={StaticResource boolToVisConverter}, ConverterParameter=isEmpty}"
+                                   Foreground="#808080" 
+                                   Margin="10,7,0,0" 
+                                   IsHitTestVisible="False"/>
+                    </Grid>
+
+                    <TextBlock Text="Nazwa użytkownika" Style="{StaticResource LabelStyle}"/>
+                    <Grid>
+                        <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource TextBoxStyle}"/>
+                        <TextBlock Text="np. anonymous" 
+                                   Visibility="{Binding Username, Converter={StaticResource boolToVisConverter}, ConverterParameter=isEmpty}"
+                                   Foreground="#808080" 
+                                   Margin="10,7,0,0" 
+                                   IsHitTestVisible="False"/>
+                    </Grid>
+
+
+                    <TextBlock Text="Hasło" Style="{StaticResource LabelStyle}"/>
+                    <Grid Margin="0,0,0,16">
+                        <PasswordBox x:Name="FtpPasswordBox" 
+                                     Style="{StaticResource PasswordBoxStyle}"
+                                     />
+                        <TextBlock x:Name="PasswordPlaceholder" 
+                                   Text="••••••••" 
+                                   Foreground="#808080" 
+                                   Margin="10,7,0,0"
+                                   IsHitTestVisible="False"/>
+                    </Grid>
+
+
+                    <TextBlock Text="Port" Style="{StaticResource LabelStyle}"/>
+                    <Grid>
+                        <TextBox Text="{Binding Port}" 
+                                 Style="{StaticResource TextBoxStyle}"/>
+                    </Grid>
+
+  
+                    <CheckBox Content="Tryb pasywny" 
+                              IsChecked="{Binding PassiveMode}" 
+                              Foreground="#CCCCCC" 
+                              Margin="0,5,0,16" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <Button Command="{Binding ConnectCommand}" 
+                            Visibility="{Binding IsConnected, Converter={StaticResource boolToVisConverter}, ConverterParameter=inverse}"
+                            Height="40"
+                            Width="120"
+                            Style="{StaticResource ConnectButtonStyle}"
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8A7;" 
+                                      FontFamily="Segoe MDL2 Assets" 
+                                      Margin="0,0,8,0"/>
+                            <TextBlock Text="Połącz"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding DisconnectCommand}" 
+                            Visibility="{Binding IsConnected, Converter={StaticResource boolToVisConverter}}"
+                            Height="40"
+                            Width="120"
+                            Background="#E81123"
+                            Style="{StaticResource ConnectButtonStyle}"
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE7BA;" 
+                                      FontFamily="Segoe MDL2 Assets" 
+                                      Margin="0,0,8,0"/>
+                            <TextBlock Text="Rozłącz"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+
+            <Border Grid.Row="0" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="0,0,0,1" 
+                    Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding NavigateUpCommand}" 
+                            Style="{StaticResource ConnectButtonStyle}" 
+                            Background="#444444" 
+                            Padding="8,5" 
+                            Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74A;" 
+                                       FontFamily="Segoe MDL2 Assets" 
+                                       Margin="0,0,5,0"/>
+                            <TextBlock Text="Do góry"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding RefreshCommand}" 
+                            Style="{StaticResource ConnectButtonStyle}" 
+                            Background="#444444" 
+                            Padding="8,5" 
+                            Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" 
+                                       FontFamily="Segoe MDL2 Assets" 
+                                       Margin="0,0,5,0"/>
+                            <TextBlock Text="Odśwież"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding UploadCommand}" 
+                            Style="{StaticResource ConnectButtonStyle}" 
+                            Background="#444444" 
+                            Padding="8,5" 
+                            Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE898;" 
+                                       FontFamily="Segoe MDL2 Assets" 
+                                       Margin="0,0,5,0"/>
+                            <TextBlock Text="Wyślij plik"/>
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Text="Ścieżka:" 
+                               Foreground="#CCCCCC" 
+                               VerticalAlignment="Center" 
+                               Margin="20,0,5,0"/>
+                    <TextBlock Text="{Binding CurrentPath}" 
+                               Foreground="#FFFFFF" 
+                               FontWeight="SemiBold" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+
+            <ListBox Grid.Row="1" 
+                     Style="{StaticResource FileListStyle}" 
+                     ItemContainerStyle="{StaticResource FileListItemStyle}"
+                     ItemsSource="{Binding FileList}"
+                     SelectionMode="Single">
+                <ListBox.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" 
+                                  Command="{Binding NavigateCommand}" 
+                                  CommandParameter="{Binding ElementName=FileListBox, Path=SelectedItem}"/>
+                </ListBox.InputBindings>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding IsDirectory, Converter={StaticResource fileIconConverter}}" 
+                                       FontFamily="Segoe MDL2 Assets" 
+                                       Foreground="{Binding IsDirectory, Converter={StaticResource fileColorConverter}}" 
+                                       Margin="0,0,10,0"/>
+
+
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding Name}" 
+                                       Foreground="#FFFFFF" 
+                                       VerticalAlignment="Center"/>
+
+
+                            <TextBlock Grid.Column="2" 
+                                       Text="{Binding SizeFormatted}" 
+                                       Foreground="#AAAAAA" 
+                                       Margin="20,0" 
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding IsDirectory, Converter={StaticResource boolToVisConverter}, ConverterParameter=inverse}"/>
+
+
+                            <Button Grid.Column="3" 
+                                    Command="{Binding DataContext.DownloadCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                    CommandParameter="{Binding}"
+                                    Content="Pobierz" 
+                                    Padding="8,3" 
+                                    Background="#4CAF50" 
+                                    Foreground="White" 
+                                    BorderThickness="0"
+                                    Visibility="{Binding IsDirectory, Converter={StaticResource boolToVisConverter}, ConverterParameter=inverse}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+
+            <Border Grid.Row="2" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="0,1,0,0" 
+                    Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="{Binding StatusMessage}" 
+                               Foreground="#CCCCCC"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding FileList.Count, StringFormat={}{0} elementów}" 
+                               Foreground="#CCCCCC"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
